@@ -1,0 +1,2 @@
+python-lxml (>=2.1)
+meresco-core
