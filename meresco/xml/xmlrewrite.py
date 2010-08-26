@@ -28,7 +28,6 @@ from lxml.etree import Element, tostring, ElementTree, SubElement, parse, XMLSyn
 from lxml.objectify import ObjectifiedElement
 from xml.sax.saxutils import escape as _xmlEscape, unescape as xmlUnescape
 from re import compile
-from warnings import warn
 
 unzip = lambda listOfTuples: zip(*listOfTuples)
 xPathSplitter = compile('[^/]*\[[^\]]*\]|[^/]+')
@@ -102,10 +101,8 @@ class XMLRewrite:
 
     """
 
-    def __init__(self, orgElementTree, rootTagName=None, defaultNameSpace=None, namespaces=None, schemaLocation=None,
-                 rules=None, vocabDict=None, xPathNs=None, newNsMap=None, sourceNsMap=None):
-        assert namespaces == None, 'namespaces is deprecated, use newNsMap'
-        assert xPathNs == None, 'xPathNs is deprecated, use sourceNsMap'
+    def __init__(self, orgElementTree, rootTagName=None, defaultNameSpace=None, schemaLocation=None,
+                 rules=None, vocabDict=None, newNsMap=None, sourceNsMap=None):
         assert isinstance(rootTagName, basestring), type(rootTagName)
 
         schemaLocation = schemaLocation or {}
@@ -156,11 +153,7 @@ class XMLRewrite:
         else:
             if orgPath:
                 orgSubContexts = xpath(orgContext, orgPath[0], self.sourceNsMap)
-                # We need to learn more before the code below will work as expected:
-                #if self.defaultNameSpace and not ':' in newTag:
-                #    text = "'" + newTag + "' does not select default namespace"
-                #    warn(text)
-                newSubContexts = xpath(newContext, newPath[0], self.newNsMap) #self.evalXpath(newContext, newTag)
+                newSubContexts = xpath(newContext, newPath[0], self.newNsMap)
                 for n in range(len(newSubContexts), len(orgSubContexts)):
                     self._createSubElement(newContext, newPath[0])
                 newSubContexts = xpath(newContext, newPath[0], self.newNsMap)
