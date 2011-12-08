@@ -36,6 +36,7 @@ sysPath.insert(0,'..')                            #DO_NOT_DISTRIBUTE
 import unittest
 
 from normalizetest import NormalizeTest
+from utilstest import UtilsTest
 from xmlrewritetest import XMLRewriteTest
 
 if __name__ == '__main__':
