@@ -22,19 +22,30 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ## end license ##
-set -e
+
+set -o errexit
 
 rm -rf tmp build
+fullPythonVersion=python2.6
 
-python setup.py install --root tmp
+$fullPythonVersion setup.py install --root tmp
 
-cp meresco/__init__.py tmp/usr/lib/python2.5/site-packages/meresco
-export PYTHONPATH=`pwd`/tmp/usr/lib/python2.5/site-packages
+VERSION="x.y.z"
+
+find tmp -name '*.py' -exec sed -r -e \
+    "/DO_NOT_DISTRIBUTE/ d;
+    s/\\\$Version:[^\\\$]*\\\$/\\\$Version: ${VERSION}\\\$/" -i '{}' \;
+
+cp meresco/__init__.py tmp/usr/local/lib/${fullPythonVersion}/dist-packages/meresco
+export PYTHONPATH=`pwd`/tmp/usr/local/lib/${fullPythonVersion}/dist-packages:${PYTHONPATH}
 cp -r test tmp/test
 
+set +o errexit
 (
 cd tmp/test
 ./alltests.sh
 )
+set -o errexit
 
 rm -rf tmp build
+
