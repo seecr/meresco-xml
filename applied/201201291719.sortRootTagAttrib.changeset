@@ -1,0 +1,197 @@
+Changeset created on Sun Jan 29 17:19:00 UTC 2012 by Seecr (Seek You Too B.V.)
+
+Description: Added method to sort root tag attributes.
+
+    Added method to sort root tag attributes to ease asserting equality.
+
+Baseline version: https://meresco.svn.sourceforge.net/svnroot/meresco/meresco-xml/workingsets/1.1-OpenIndex/version_0
+
+diff --unidirectional-new-file --recursive --unified '--exclude=*.so' '--exclude=*.o' '--exclude=.svn' '--exclude=*.pyc' '--exclude=deps.d' '--exclude=applied' version_0/meresco/xml/utils.py /home/thijs/development/sf/meresco-xml/workingsets/1.1-OpenIndex/version_1/meresco/xml/utils.py
+--- version_0/meresco/xml/utils.py	1970-01-01 01:00:00.000000000 +0100
++++ version_1/meresco/xml/utils.py	2012-01-29 18:18:55.000000000 +0100
+@@ -0,0 +1,46 @@
++## begin license ##
++# 
++# "Meresco-Xml" is a set of components and tools for handling xml data objects. 
++# 
++# Copyright (C) 2011 Seecr (Seek You Too B.V.) http://seecr.nl
++# 
++# This file is part of "Meresco-Xml"
++# 
++# "Meresco-Xml" is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++# 
++# "Meresco-Xml" is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# 
++# You should have received a copy of the GNU General Public License
++# along with "Meresco-Xml"; if not, write to the Free Software
++# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++# 
++## end license ##
++
++def sortRootTagAttrib(xmlString):
++    root, remainder = xmlString.split(">", 1)
++    rootAttribs = root[root.find(' '):].strip()
++
++    def nextAtrrib(text):
++        pos = 0
++        while True:
++            newPos = text.find('"', pos)
++            if newPos == -1:
++                return
++            newPos = text.find('"', newPos+1)
++            if newPos == -1:
++                return
++            yield text[pos:newPos + 1]
++            pos = newPos + 2
++
++    newXmlString = root[:root.find(' ') + 1]
++    newXmlString += ' '.join(sorted(list(nextAtrrib(rootAttribs))))
++    newXmlString += '>'
++    newXmlString += remainder
++    return newXmlString
++
+diff --unidirectional-new-file --recursive --unified '--exclude=*.so' '--exclude=*.o' '--exclude=.svn' '--exclude=*.pyc' '--exclude=deps.d' '--exclude=applied' version_0/test/_alltests.py /home/thijs/development/sf/meresco-xml/workingsets/1.1-OpenIndex/version_1/test/_alltests.py
+--- version_0/test/_alltests.py	2012-01-16 14:10:49.000000000 +0100
++++ version_1/test/_alltests.py	2012-01-29 18:18:55.000000000 +0100
+@@ -1,27 +1,28 @@
+ #!/usr/bin/env python2.5
+ # -*- coding: utf-8 -*-
+ ## begin license ##
+-#
+-#    Meresco Xml is a set of components and tools for handling
+-#    xml data objects.
+-#    Copyright (C) 2005-2010 Seek You Too (CQ2) http://www.cq2.nl
+-#
+-#    This file is part of Meresco Xml.
+-#
+-#    Meresco Xml is free software; you can redistribute it and/or modify
+-#    it under the terms of the GNU General Public License as published by
+-#    the Free Software Foundation; either version 2 of the License, or
+-#    (at your option) any later version.
+-#
+-#    Meresco Xml is distributed in the hope that it will be useful,
+-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-#    GNU General Public License for more details.
+-#
+-#    You should have received a copy of the GNU General Public License
+-#    along with Meresco Xml; if not, write to the Free Software
+-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+-#
++# 
++# "Meresco-Xml" is a set of components and tools for handling xml data objects. 
++# 
++# Copyright (C) 2005-2010 Seek You Too (CQ2) http://www.cq2.nl
++# Copyright (C) 2011 Seecr (Seek You Too B.V.) http://seecr.nl
++# 
++# This file is part of "Meresco-Xml"
++# 
++# "Meresco-Xml" is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++# 
++# "Meresco-Xml" is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# 
++# You should have received a copy of the GNU General Public License
++# along with "Meresco-Xml"; if not, write to the Free Software
++# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++# 
+ ## end license ##
+ 
+ from sys import path as sysPath                   #DO_NOT_DISTRIBUTE
+@@ -36,6 +37,7 @@
+ import unittest
+ 
+ from normalizetest import NormalizeTest
++from utilstest import UtilsTest
+ from xmlrewritetest import XMLRewriteTest
+ 
+ if __name__ == '__main__':
+diff --unidirectional-new-file --recursive --unified '--exclude=*.so' '--exclude=*.o' '--exclude=.svn' '--exclude=*.pyc' '--exclude=deps.d' '--exclude=applied' version_0/test/utilstest.py /home/thijs/development/sf/meresco-xml/workingsets/1.1-OpenIndex/version_1/test/utilstest.py
+--- version_0/test/utilstest.py	1970-01-01 01:00:00.000000000 +0100
++++ version_1/test/utilstest.py	2012-01-29 18:18:55.000000000 +0100
+@@ -0,0 +1,36 @@
++## begin license ##
++# 
++# "Meresco-Xml" is a set of components and tools for handling xml data objects. 
++# 
++# Copyright (C) 2011 Seecr (Seek You Too B.V.) http://seecr.nl
++# 
++# This file is part of "Meresco-Xml"
++# 
++# "Meresco-Xml" is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++# 
++# "Meresco-Xml" is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# 
++# You should have received a copy of the GNU General Public License
++# along with "Meresco-Xml"; if not, write to the Free Software
++# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++# 
++## end license ##
++
++from cq2utils import CQ2TestCase
++
++from meresco.xml.utils import sortRootTagAttrib
++
++class UtilsTest(CQ2TestCase):
++    def testSortRootTagAttrib(self):
++        input = """<a:root xmlns:b="namespace B" xmlns:a="namespace A">
++    <b:sub>tag</b:sub>
++</a:root>"""
++        self.assertEquals("""<a:root xmlns:a="namespace A" xmlns:b="namespace B">
++    <b:sub>tag</b:sub>
++</a:root>""", sortRootTagAttrib(input))
+diff --unidirectional-new-file --recursive --unified '--exclude=*.so' '--exclude=*.o' '--exclude=.svn' '--exclude=*.pyc' '--exclude=deps.d' '--exclude=applied' version_0/testsetup.sh /home/thijs/development/sf/meresco-xml/workingsets/1.1-OpenIndex/version_1/testsetup.sh
+--- version_0/testsetup.sh	2012-01-16 14:10:49.000000000 +0100
++++ version_1/testsetup.sh	2012-01-29 18:18:55.000000000 +0100
+@@ -22,19 +22,30 @@
+ #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ #
+ ## end license ##
+-set -e
++
++set -o errexit
+ 
+ rm -rf tmp build
++fullPythonVersion=python2.6
++
++$fullPythonVersion setup.py install --root tmp
+ 
+-python setup.py install --root tmp
++VERSION="x.y.z"
+ 
+-cp meresco/__init__.py tmp/usr/lib/python2.5/site-packages/meresco
+-export PYTHONPATH=`pwd`/tmp/usr/lib/python2.5/site-packages
++find tmp -name '*.py' -exec sed -r -e \
++    "/DO_NOT_DISTRIBUTE/ d;
++    s/\\\$Version:[^\\\$]*\\\$/\\\$Version: ${VERSION}\\\$/" -i '{}' \;
++
++cp meresco/__init__.py tmp/usr/local/lib/${fullPythonVersion}/dist-packages/meresco
++export PYTHONPATH=`pwd`/tmp/usr/local/lib/${fullPythonVersion}/dist-packages:${PYTHONPATH}
+ cp -r test tmp/test
+ 
++set +o errexit
+ (
+ cd tmp/test
+ ./alltests.sh
+ )
++set -o errexit
+ 
+ rm -rf tmp build
++
