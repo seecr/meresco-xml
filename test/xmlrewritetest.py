@@ -24,12 +24,12 @@
 from unittest import TestCase
 from lxml.etree import parse, tostring, XMLParser
 from meresco.xml.xmlrewrite import XMLRewrite
-from cq2utils import CQ2TestCase
+from seecr.test import SeecrTestCase
 from StringIO import StringIO
 from difflib import unified_diff
 from os.path import dirname, abspath
 
-class XMLRewriteTest(CQ2TestCase):
+class XMLRewriteTest(SeecrTestCase):
 
     def assertRewrite(self, rules, newRootTagName, soll, src, defaultNamespace=None, newNsMap={}, schemaLocation={}, sourceNsMap={}):
         rewrite = XMLRewrite(parse(StringIO(src)), rootTagName=newRootTagName, defaultNameSpace=defaultNamespace,

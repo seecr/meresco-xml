@@ -22,11 +22,11 @@
 # 
 ## end license ##
 
-from cq2utils import CQ2TestCase
+from seecr.test import SeecrTestCase
 
 from meresco.xml.utils import sortRootTagAttrib
 
-class UtilsTest(CQ2TestCase):
+class UtilsTest(SeecrTestCase):
     def testSortRootTagAttrib(self):
         input = """<a:root xmlns:b="namespace B" xmlns:a="namespace A">
     <b:sub>tag</b:sub>
