@@ -36,8 +36,14 @@ find tmp -name '*.py' -exec sed -r -e \
     "/DO_NOT_DISTRIBUTE/ d;
     s/\\\$Version:[^\\\$]*\\\$/\\\$Version: ${VERSION}\\\$/" -i '{}' \;
 
-cp meresco/__init__.py tmp/usr/local/lib/${fullPythonVersion}/dist-packages/meresco
-export PYTHONPATH=`pwd`/tmp/usr/local/lib/${fullPythonVersion}/dist-packages:${PYTHONPATH}
+if [ -f /etc/debian_version ]; then
+    SITE_PACKAGE_DIR=`pwd`/tmp/usr/local/lib/${fullPythonVersion}/dist-packages
+else
+    SITE_PACKAGE_DIR=`pwd`/tmp/usr/lib/${fullPythonVersion}/site-packages
+fi
+
+cp meresco/__init__.py ${SITE_PACKAGE_DIR}/meresco
+export PYTHONPATH=${SITE_PACKAGE_DIR}:${PYTHONPATH}
 cp -r test tmp/test
 
 set +o errexit
