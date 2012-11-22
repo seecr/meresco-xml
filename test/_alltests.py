@@ -4,7 +4,7 @@
 # "Meresco-Xml" is a set of components and tools for handling xml data objects. 
 # 
 # Copyright (C) 2005-2010 Seek You Too (CQ2) http://www.cq2.nl
-# Copyright (C) 2011 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2011-2012 Seecr (Seek You Too B.V.) http://seecr.nl
 # 
 # This file is part of "Meresco-Xml"
 # 
@@ -35,6 +35,7 @@ sysPath.insert(0,'..')                            #DO_NOT_DISTRIBUTE
 
 import unittest
 
+from namespacestest import NamespacesTest
 from normalizetest import NormalizeTest
 from utilstest import UtilsTest
 from xmlrewritetest import XMLRewriteTest
