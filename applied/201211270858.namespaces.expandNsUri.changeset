@@ -1,0 +1,66 @@
+Changeset created on Tue Nov 27 08:58:57 UTC 2012 by Seecr (Seek You Too B.V.)
+
+Description: Added expandNsUri
+
+    Added expandNsUri method to help turning 'rdf:type' into 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
+
+Baseline version: 4.0.2
+
+From 5cca2ee886a94b4f54a14a2d84ecd6e35ea27037 Mon Sep 17 00:00:00 2001
+From: Seecr Development Team <development@seecr.nl>
+Date: Tue, 27 Nov 2012 08:58:28 +0000
+Subject: [PATCH] HM/TJ: added expandNsUri
+
+---
+ meresco/xml/__init__.py   |    2 +-
+ meresco/xml/namespaces.py |    5 +++++
+ test/namespacestest.py    |    5 +++++
+ 3 files changed, 11 insertions(+), 1 deletions(-)
+
+diff --git a/meresco/xml/__init__.py b/meresco/xml/__init__.py
+index f35fe02..14bf113 100644
+--- a/meresco/xml/__init__.py
++++ b/meresco/xml/__init__.py
+@@ -24,4 +24,4 @@
+ ## end license ##
+ 
+ from xmlrewrite import XMLRewrite
+-from namespaces import namespaces, xpath, xpathFirst, expandNs
++from namespaces import namespaces, xpath, xpathFirst, expandNs, expandNsUri
+diff --git a/meresco/xml/namespaces.py b/meresco/xml/namespaces.py
+index 4b0ca49..400f013 100644
+--- a/meresco/xml/namespaces.py
++++ b/meresco/xml/namespaces.py
+@@ -49,6 +49,10 @@ class _namespaces(dict):
+         ns, value = name.split(':', 1)
+         return '{%s}%s' % (self[ns], value)
+ 
++    def expandNsUri(self, name):
++        ns, value = name.split(':', 1)
++        return '%s%s' % (self[ns], value)
++
+ 
+ namespaces = _namespaces(
+     dc="http://purl.org/dc/elements/1.1/",
+@@ -85,3 +89,4 @@ namespaces = _namespaces(
+ xpath = namespaces.xpath
+ xpathFirst = namespaces.xpathFirst
+ expandNs = namespaces.expandNs
++expandNsUri = namespaces.expandNsUri
+diff --git a/test/namespacestest.py b/test/namespacestest.py
+index f26a3aa..e706072 100644
+--- a/test/namespacestest.py
++++ b/test/namespacestest.py
+@@ -53,4 +53,9 @@ class NamespacesTest(SeecrTestCase):
+         self.assertEquals('{http://www.loc.gov/zing/srw/}record', namespaces.expandNs('srw:record'))
+         self.assertEquals('{http://purl.org/dc/elements/1.1/}title', namespaces.expandNs('dc:title'))
+ 
++    def testExpandNsUri(self):
++        self.assertEquals('http://www.loc.gov/zing/srw/record', namespaces.expandNsUri('srw:record'))
++        self.assertEquals('http://purl.org/dc/elements/1.1/title', namespaces.expandNsUri('dc:title'))
++        self.assertEquals('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', namespaces.expandNsUri('rdf:type'))
++
+ 
+-- 
+1.7.1
+
