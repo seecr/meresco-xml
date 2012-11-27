@@ -49,6 +49,10 @@ class _namespaces(dict):
         ns, value = name.split(':', 1)
         return '{%s}%s' % (self[ns], value)
 
+    def expandNsUri(self, name):
+        ns, value = name.split(':', 1)
+        return '%s%s' % (self[ns], value)
+
 
 namespaces = _namespaces(
     dc="http://purl.org/dc/elements/1.1/",
@@ -85,3 +89,4 @@ namespaces = _namespaces(
 xpath = namespaces.xpath
 xpathFirst = namespaces.xpathFirst
 expandNs = namespaces.expandNs
+expandNsUri = namespaces.expandNsUri

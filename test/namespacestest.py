@@ -53,4 +53,9 @@ class NamespacesTest(SeecrTestCase):
         self.assertEquals('{http://www.loc.gov/zing/srw/}record', namespaces.expandNs('srw:record'))
         self.assertEquals('{http://purl.org/dc/elements/1.1/}title', namespaces.expandNs('dc:title'))
 
+    def testExpandNsUri(self):
+        self.assertEquals('http://www.loc.gov/zing/srw/record', namespaces.expandNsUri('srw:record'))
+        self.assertEquals('http://purl.org/dc/elements/1.1/title', namespaces.expandNsUri('dc:title'))
+        self.assertEquals('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', namespaces.expandNsUri('rdf:type'))
+
 
