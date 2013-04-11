@@ -1,26 +1,26 @@
 ## begin license ##
-# 
-# "Meresco-Xml" is a set of components and tools for handling xml data objects. 
-# 
-# Copyright (C) 2012 Seecr (Seek You Too B.V.) http://seecr.nl
-# Copyright (C) 2012 Stichting Bibliotheek.nl (BNL) http://www.bibliotheek.nl
-# 
+#
+# "Meresco-Xml" is a set of components and tools for handling xml data objects.
+#
+# Copyright (C) 2012-2013 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2012-2013 Stichting Bibliotheek.nl (BNL) http://www.bibliotheek.nl
+#
 # This file is part of "Meresco-Xml"
-# 
+#
 # "Meresco-Xml" is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # "Meresco-Xml" is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with "Meresco-Xml"; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-# 
+#
 ## end license ##
 
 from seecr.test import SeecrTestCase
@@ -49,8 +49,11 @@ class NamespacesTest(SeecrTestCase):
         self.assertFalse('srw' in ns2)
         self.assertTrue(hasattr(ns2, 'xpath'))
 
-    def testExpandNs(self):
-        self.assertEquals('{http://www.loc.gov/zing/srw/}record', namespaces.expandNs('srw:record'))
+    def testExpandNsTag(self):
+        self.assertEquals('{http://www.loc.gov/zing/srw/}record', namespaces.expandNsTag('srw:record'))
+        self.assertEquals('{http://purl.org/dc/elements/1.1/}title', namespaces.expandNsTag('dc:title'))
+
+    def testExpandNs_backwards_compatible(self):
         self.assertEquals('{http://purl.org/dc/elements/1.1/}title', namespaces.expandNs('dc:title'))
 
     def testExpandNsUri(self):
@@ -58,4 +61,23 @@ class NamespacesTest(SeecrTestCase):
         self.assertEquals('http://purl.org/dc/elements/1.1/title', namespaces.expandNsUri('dc:title'))
         self.assertEquals('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', namespaces.expandNsUri('rdf:type'))
 
+    def testPrefixedTag(self):
+        self.assertEquals('dc:title', namespaces.prefixedTag('{http://purl.org/dc/elements/1.1/}title'))
+        self.assertRaises(KeyError, namespaces.prefixedTag, '{unknown}tag')
+        self.assertRaises(ValueError, namespaces.prefixedTag, 'no-uri-in-tag')
+        self.assertEquals('srw:records', namespaces.prefixedTag(namespaces.expandNsTag('srw:records')))
+        ns2 = namespaces.copyUpdate({'new':'uri:new'})
+        self.assertEquals('new:tag', ns2.prefixedTag('{uri:new}tag'))
 
+    def testNotAllDictMethodsSupported(self):
+        def deleteNsItem():
+            del namespaces['dc']
+        self.assertRaises(TypeError, deleteNsItem)
+        def setNsItem():
+            namespaces['new'] = 'uri'
+        self.assertRaises(TypeError, setNsItem)
+        self.assertRaises(TypeError, lambda: namespaces.update({'new':'uri'}))
+        self.assertRaises(TypeError, lambda: namespaces.setdefault('key', 'value'))
+
+    def testFormatting(self):
+        self.assertEquals('Uri=http://purl.org/dc/elements/1.1/', 'Uri=%(dc)s' % namespaces)

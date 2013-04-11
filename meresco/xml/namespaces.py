@@ -1,33 +1,37 @@
 ## begin license ##
-# 
-# "Meresco-Xml" is a set of components and tools for handling xml data objects. 
-# 
-# Copyright (C) 2012 Seecr (Seek You Too B.V.) http://seecr.nl
-# Copyright (C) 2012 Stichting Bibliotheek.nl (BNL) http://www.bibliotheek.nl
-# 
+#
+# "Meresco-Xml" is a set of components and tools for handling xml data objects.
+#
+# Copyright (C) 2012-2013 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2012-2013 Stichting Bibliotheek.nl (BNL) http://www.bibliotheek.nl
+#
 # This file is part of "Meresco-Xml"
-# 
+#
 # "Meresco-Xml" is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # "Meresco-Xml" is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with "Meresco-Xml"; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-# 
+#
 ## end license ##
 
 class _namespaces(dict):
+    def __init__(self, *args, **kwargs):
+        dict.__init__(self, *args, **kwargs)
+        self._reverse = dict((v,k) for k,v in self.items()) 
+
     def __getattr__(self, key):
         try: 
             return self[key]
-        except KeyError, e:
+        except KeyError:
             raise AttributeError(key)
 
     def xpath(self, node, path):
@@ -38,20 +42,35 @@ class _namespaces(dict):
         return nodes[0] if nodes else None
 
     def copyUpdate(self, d):
-        newNamespaces = self.__class__(self)
-        newNamespaces.update(d)
-        return newNamespaces
+        return self.__class__(dict(self, **d))
 
     def select(self, *prefixes):
         return self.__class__((k, self[k]) for k in prefixes)
 
-    def expandNs(self, name):
+    def expandNsTag(self, name):
         ns, value = name.split(':', 1)
         return '{%s}%s' % (self[ns], value)
+    expandNs = expandNsTag
 
     def expandNsUri(self, name):
         ns, value = name.split(':', 1)
         return '%s%s' % (self[ns], value)
+
+    def prefixedTag(self, tag):
+        if not (tag.startswith('{') and '}' in tag):
+            raise ValueError("Expected '{some:uri}tagname', but got '%s'" % tag)
+        uri, _, localtag = tag[1:].partition('}')
+        prefix = self._reverse[uri]
+        return '%s:%s' % (prefix, localtag)
+
+    def _notsupported(self, *args, **kwargs):
+        raise TypeError('The namespaces object is readonly. Use select(..) or copyUpdate(..) to create a new namespaces object.')
+
+    __delitem__ = _notsupported
+    __setitem__ = _notsupported
+    clear = _notsupported
+    setdefault = _notsupported
+    update = _notsupported
 
 
 namespaces = _namespaces(
