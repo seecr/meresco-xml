@@ -1,0 +1,53 @@
+Changeset created on Mon Apr 15 09:09:21 UTC 2013 by Seecr (Seek You Too B.V.)
+
+Description: Easy namespace declaration
+
+    Use '<rdf:RDF %(xmlns_rdf)s>' % namespaces to easily create xml namespace
+    declaration.
+
+Baseline version: 4.1
+
+From 0d069da9872b137979e9b876620229cee0f8b1ba Mon Sep 17 00:00:00 2001
+From: Seecr Development Team <development@seecr.nl>
+Date: Mon, 15 Apr 2013 11:08:11 +0200
+Subject: [PATCH] TS/TJ: added xmlns_ to ease creation of namespace declaration.
+
+---
+ meresco/xml/namespaces.py |    7 +++++++
+ test/namespacestest.py    |    5 +++++
+ 2 files changed, 12 insertions(+), 0 deletions(-)
+
+diff --git a/meresco/xml/namespaces.py b/meresco/xml/namespaces.py
+index 10ef022..33849fc 100644
+--- a/meresco/xml/namespaces.py
++++ b/meresco/xml/namespaces.py
+@@ -34,6 +34,13 @@ class _namespaces(dict):
+         except KeyError:
+             raise AttributeError(key)
+ 
++    def __getitem__(self, key):
++        _, xmlns, key = key.rpartition('xmlns_')
++        result = dict.__getitem__(self, key)
++        if xmlns == 'xmlns_':
++            return 'xmlns:%s="%s"' % (key, result)
++        return result
++
+     def xpath(self, node, path):
+         return node.xpath(path, namespaces=self)
+ 
+diff --git a/test/namespacestest.py b/test/namespacestest.py
+index eac772e..27473b6 100644
+--- a/test/namespacestest.py
++++ b/test/namespacestest.py
+@@ -81,3 +81,8 @@ class NamespacesTest(SeecrTestCase):
+ 
+     def testFormatting(self):
+         self.assertEquals('Uri=http://purl.org/dc/elements/1.1/', 'Uri=%(dc)s' % namespaces)
++
++    def testXmlns(self):
++        self.assertEquals('xmlns:dc="http://purl.org/dc/elements/1.1/"', namespaces['xmlns_dc'])
++        self.assertEquals('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">', '<rdf:RDF %(xmlns_rdf)s>' % namespaces)
++        self.assertFalse('xmlns_rdf' in namespaces.keys())
+-- 
+1.7.1
+
