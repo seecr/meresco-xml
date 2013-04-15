@@ -34,6 +34,13 @@ class _namespaces(dict):
         except KeyError:
             raise AttributeError(key)
 
+    def __getitem__(self, key):
+        _, xmlns, key = key.rpartition('xmlns_')
+        result = dict.__getitem__(self, key)
+        if xmlns == 'xmlns_':
+            return 'xmlns:%s="%s"' % (key, result)
+        return result
+
     def xpath(self, node, path):
         return node.xpath(path, namespaces=self)
 
