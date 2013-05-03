@@ -1,57 +1,53 @@
 #!/bin/bash
 ## begin license ##
 #
-#    Meresco Xml is a set of components and tools for handling
-#    xml data objects.
-#    Copyright (C) 2010 Seek You Too (CQ2) http://www.cq2.nl
+# "Meresco-Xml" is a set of components and tools for handling xml data objects.
 #
-#    This file is part of Meresco Xml.
+# Copyright (C) 2010 Seek You Too (CQ2) http://www.cq2.nl
+# Copyright (C) 2013 Seecr (Seek You Too B.V.) http://seecr.nl
 #
-#    Meresco Xml is free software; you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation; either version 2 of the License, or
-#    (at your option) any later version.
+# This file is part of "Meresco-Xml"
 #
-#    Meresco Xml is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+# "Meresco-Xml" is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with Meresco Xml; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+# "Meresco-Xml" is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with "Meresco-Xml"; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ## end license ##
 
 set -o errexit
-
 rm -rf tmp build
-fullPythonVersion=python2.6
+mydir=$(cd $(dirname $0); pwd)
+source /usr/share/seecr-test/functions
 
-$fullPythonVersion setup.py install --root tmp
+pyversions="2.6"
+if distro_is_debian_wheezy; then
+    pyversions="2.6 2.7"
+fi
 
 VERSION="x.y.z"
 
-find tmp -name '*.py' -exec sed -r -e \
-    "/DO_NOT_DISTRIBUTE/ d;
-    s/\\\$Version:[^\\\$]*\\\$/\\\$Version: ${VERSION}\\\$/" -i '{}' \;
-
-if [ -f /etc/debian_version ]; then
-    SITE_PACKAGE_DIR=`pwd`/tmp/usr/local/lib/${fullPythonVersion}/dist-packages
-else
-    SITE_PACKAGE_DIR=`pwd`/tmp/usr/lib/${fullPythonVersion}/site-packages
-fi
-
-cp meresco/__init__.py ${SITE_PACKAGE_DIR}/meresco
-export PYTHONPATH=${SITE_PACKAGE_DIR}:${PYTHONPATH}
+for pyversion in $pyversions; do
+    definePythonVars $pyversion
+    echo "###### $pyversion, $PYTHON"
+    ${PYTHON} setup.py install --root tmp
+done
 cp -r test tmp/test
+removeDoNotDistribute tmp
+find tmp -name '*.py' -exec sed -r -e "
+    s/\\\$Version:[^\\\$]*\\\$/\\\$Version: ${VERSION}\\\$/;
+    " -i '{}' \;
 
-set +o errexit
-(
-cd tmp/test
-./alltests.sh
-)
-set -o errexit
-
+cp -r test tmp/test
+runtests "$@"
 rm -rf tmp build
 
