@@ -66,7 +66,6 @@ class SubTreesTreeBuilder(object):
                 builder.start(tag, attrs, namespaces)
                 self._currentTreeBuilders[id] = builder
 
-
     def comment(self, comment):
         for tb in self._currentTreeBuilders.values():
             tb.comment(comment)
@@ -97,4 +96,30 @@ class SubTreesTreeBuilder(object):
 
     def close(self):
         assert not self._currentTreeBuilders, 'TreeBuilder(s) still present on close.'
+
+
+class SimpleSaxFileParser(object):
+    def __init__(self, stream, path, callback):
+        self._stream = stream
+        self._path = path
+        self._callback = callback
+
+    def start(self):
+        def isPath(stack):
+            return [d['tag'] for d in stack] == self._path
+        builder = SubTreesTreeBuilder(buildFor={
+            'simple': isPath,
+        })
+        def processSubtrees():
+            for id, subtree in builder.getSubtrees():
+                self._callback(subtree)
+        parser = XMLParser(target=builder)
+
+        data = self._stream.read(4096)
+        while data:
+            parser.feed(data)
+            processSubtrees()
+            data = self._stream.read(4096)
+        parser.close()
+        processSubtrees()
 

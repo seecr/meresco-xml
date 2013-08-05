@@ -25,9 +25,9 @@
 from seecr.test import SeecrTestCase
 
 from meresco.xml import namespaces
-from meresco.xml.sax import SubTreesTreeBuilder
+from meresco.xml.sax import SubTreesTreeBuilder, SimpleSaxFileParser
 
-from lxml.etree import parse, XMLParser
+from lxml.etree import parse, XMLParser, tostring
 
 from math import ceil
 from StringIO import StringIO
@@ -135,6 +135,31 @@ class SaxTest(SeecrTestCase):
             xpathFirst(parseString(XML_NS), '/def_:root/def_:subInDefaultNS'),
             result[5][1])
 
+    def testSimpleSaxFileParser(self):
+        xml = StringIO("""<a><b/><b/><c/><b/></a>""")
+        result = []
+        saxfp = SimpleSaxFileParser(stream=xml, path=['a', 'b'], callback=result.append)
+        saxfp.start()
+
+        self.assertEquals(3, len(result))
+        self.assertEquals('b', result[0].tag)
+
+    def testMustCallGetSubtreesAfterCloseToo(self):
+        xml = """<a><b/></a>"""
+        builder = SubTreesTreeBuilder(buildFor={
+            'bee': lambda stack: [d['tag'] for d in stack] == ['a', 'b'],
+        })
+        parser = XMLParser(target=builder)
+
+        parser.feed(xml)
+        self.assertEquals([], list(builder.getSubtrees()))
+
+        parser.close()
+        result = list(builder.getSubtrees())
+        self.assertEquals(1, len(result))
+        self.assertEquals('bee', result[0][0])
+        self.assertEquals('<b/>', tostring(result[0][1]))
+
 
 def parseIncrementallyBy20(builder, inputXml):
     parser = XMLParser(target=builder)
@@ -149,6 +174,8 @@ def parseIncrementallyBy20(builder, inputXml):
             result.append((id, subtree))
         data = xmlStream.read(20)
     retval = parser.close()
+    for id, subtree in builder.getSubtrees():
+        result.append((id, subtree))
     assert retval is None, 'Errr?'
     assert ceil(len(inputXml) / 20.0) == loops, 'Errr?'
     return result, loops
