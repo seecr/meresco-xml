@@ -106,6 +106,7 @@ namespaces = _namespaces(
     ti='http://meresco.org/namespace/timing',
     ucp='info:lc/xmlns/update-v1',
     wsdl='http://schemas.xmlsoap.org/wsdl/',
+    xml='http://www.w3.org/XML/1998/namespace',
     xsd='http://www.w3.org/2001/XMLSchema',
     xsi='http://www.w3.org/2001/XMLSchema-instance',
     xsl='http://www.w3.org/1999/XSL/Transform',
