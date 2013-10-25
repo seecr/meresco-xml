@@ -37,7 +37,8 @@ import unittest
 
 from namespacestest import NamespacesTest
 from normalizetest import NormalizeTest
-from saxtest import SaxTest
+from pushparsertest import PushParserTest
+from subtreestreebuildertest import SubTreesTreeBuilderTest
 from utilstest import UtilsTest
 from xmlrewritetest import XMLRewriteTest
 

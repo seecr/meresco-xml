@@ -25,7 +25,7 @@
 from seecr.test import SeecrTestCase
 
 from meresco.xml import namespaces
-from meresco.xml.sax import SubTreesTreeBuilder, SimpleSaxFileParser
+from meresco.xml.subtreestreebuilder import SubTreesTreeBuilder, SimpleSaxFileParser
 
 from lxml.etree import parse, XMLParser, tostring
 
@@ -43,11 +43,9 @@ xpath = namespaces.xpath
 xpathFirst = namespaces.xpathFirst
 
 
-class SaxTest(SeecrTestCase):
+class SubTreesTreeBuilderTest(SeecrTestCase):
     def testParseAndProcessSimpleFile(self):
-        builder = SubTreesTreeBuilder(buildFor={
-            'record': lambda stack: [d['tag'] for d in stack] == ['records', 'record']
-        })
+        builder = SubTreesTreeBuilder(elementPath=['records', 'record'])
         result, loops = parseIncrementallyBy20(builder=builder, inputXml=XML)
 
         self.assertEquals(ceil(len(XML) / 20.0), loops)
@@ -159,6 +157,20 @@ class SaxTest(SeecrTestCase):
         self.assertEquals(1, len(result))
         self.assertEquals('bee', result[0][0])
         self.assertEquals('<b/>', tostring(result[0][1]))
+
+    def testOnResult(self):
+        trees = []
+        def onResult(tree):
+            trees.append(tree)
+        xml = """<a><b>Dit is een tag in een tag</b></a>"""
+        builder = SubTreesTreeBuilder(elementPath=['r', 'a', 'b'], onResult=onResult)
+        parser = XMLParser(target=builder)
+        parser.feed("<r>")
+        parser.feed(xml)
+        parser.feed(xml)
+        self.assertEquals(2, len(trees))
+        self.assertEquals('<b>Dit is een tag in een tag</b>', tostring(trees[0]))
+
 
 
 def parseIncrementallyBy20(builder, inputXml):

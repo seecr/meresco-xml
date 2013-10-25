@@ -29,9 +29,12 @@ from os.path import abspath, dirname, join
 
 
 class SubTreesTreeBuilder(object):
-    def __init__(self, buildFor, treeBuilderFactory=TreeBuilder):
+    def __init__(self, buildFor=None, elementPath=None, treeBuilderFactory=TreeBuilder, onResult=None):
+        if elementPath:
+            buildFor = {elementPath[-1]: lambda stack: [d['tag'] for d in stack] == elementPath}
         self._buildFor = buildFor
         self._treeBuilderFactory = treeBuilderFactory
+        self._onResult = onResult
         self._subtrees = []
         self._currentTreeBuilders = {}
         self._stack = []
@@ -87,6 +90,8 @@ class SubTreesTreeBuilder(object):
         if builders:
             for id in builders:
                 root = self._currentTreeBuilders[id].close()
+                if self._onResult:
+                    self._onResult(root)
                 self._subtrees.append((id, root))
                 del self._currentTreeBuilders[id]
 
