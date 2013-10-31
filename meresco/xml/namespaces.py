@@ -26,10 +26,10 @@
 class _namespaces(dict):
     def __init__(self, *args, **kwargs):
         dict.__init__(self, *args, **kwargs)
-        self._reverse = dict((v,k) for k,v in self.items()) 
+        self._reverse = dict((v,k) for k,v in self.items())
 
     def __getattr__(self, key):
-        try: 
+        try:
             return self[key]
         except KeyError:
             raise AttributeError(key)
@@ -100,6 +100,7 @@ namespaces = _namespaces(
     rdfs="http://www.w3.org/2000/01/rdf-schema#",
     sfr="http://docs.oasis-open.org/ns/search-ws/facetedResults",
     skos="http://www.w3.org/2004/02/skos/core#",
+    soap="http://schemas.xmlsoap.org/soap/envelope/",
     srw='http://www.loc.gov/zing/srw/',
     srw_dc='info:srw/schema/1/dc-v1.1',
     sug='http://meresco.org/namespace/suggestions',
