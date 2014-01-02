@@ -23,5 +23,5 @@
 # 
 ## end license ##
 
-from xmlrewrite import XMLRewrite
-from namespaces import namespaces, xpath, xpathFirst, expandNs, expandNsUri
+from .xmlrewrite import XMLRewrite
+from .namespaces import namespaces, xpath, xpathFirst, expandNs, expandNsUri

@@ -85,4 +85,4 @@ class NamespacesTest(SeecrTestCase):
     def testXmlns(self):
         self.assertEquals('xmlns:dc="http://purl.org/dc/elements/1.1/"', namespaces['xmlns_dc'])
         self.assertEquals('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">', '<rdf:RDF %(xmlns_rdf)s>' % namespaces)
-        self.assertFalse('xmlns_rdf' in namespaces.keys())
+        self.assertFalse('xmlns_rdf' in list(namespaces.keys()))

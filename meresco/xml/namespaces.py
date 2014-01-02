@@ -26,7 +26,7 @@
 class _namespaces(dict):
     def __init__(self, *args, **kwargs):
         dict.__init__(self, *args, **kwargs)
-        self._reverse = dict((v,k) for k,v in self.items())
+        self._reverse = dict((v,k) for k,v in list(self.items()))
 
     def __getattr__(self, key):
         try:
