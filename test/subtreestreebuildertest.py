@@ -30,7 +30,7 @@ from meresco.xml.subtreestreebuilder import SubTreesTreeBuilder, SimpleSaxFilePa
 from lxml.etree import parse, XMLParser, tostring
 
 from math import ceil
-from StringIO import StringIO
+from io import StringIO
 
 
 namespaces = namespaces.copyUpdate({
@@ -174,7 +174,7 @@ class SubTreesTreeBuilderTest(SeecrTestCase):
         parser.feed(xml)
         parser.feed(xml)
         self.assertEquals(2, len(trees))
-        self.assertEquals('<b>Dit is een tag in een tag</b>', tostring(trees[0]))
+        self.assertEquals(b'<b>Dit is een tag in een tag</b>', tostring(trees[0]))
 
 
 

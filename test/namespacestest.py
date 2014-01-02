@@ -96,25 +96,25 @@ class NamespacesTest(SeecrTestCase):
     def testXmlns(self):
         self.assertEquals('xmlns:dc="http://purl.org/dc/elements/1.1/"', namespaces['xmlns_dc'])
         self.assertEquals('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">', '<rdf:RDF %(xmlns_rdf)s>' % namespaces)
-        self.assertFalse('xmlns_rdf' in namespaces.keys())
+        self.assertFalse('xmlns_rdf' in list(namespaces.keys()))
 
     def testNsToPrefix(self):
-        self.assertEquals('dc', namespaces.nsToPrefix(namespaces.dc))
-        self.assertEquals(None, namespaces.nsToPrefix('asdfasdf'))
+        self.assertEqual('dc', namespaces.nsToPrefix(namespaces.dc))
+        self.assertEqual(None, namespaces.nsToPrefix('asdfasdf'))
 
     def testUriToCurie(self):
-        self.assertEquals('dcterms:fluffy', namespaces.uriToCurie(uri='http://purl.org/dc/terms/fluffy'))
+        self.assertEqual('dcterms:fluffy', namespaces.uriToCurie(uri='http://purl.org/dc/terms/fluffy'))
 
     def testXpath(self):
-        self.assertEquals(_Element, type(xpath(ANY_XML, "/root/sub")[0]))
-        self.assertEquals(str, type(xpath(ANY_XML, "/root/sub1/text()")[0]))
-        self.assertEquals(["text"], xpath(ANY_XML, "/root/sub1/text()"))
+        self.assertEqual(_Element, type(xpath(ANY_XML, "/root/sub")[0]))
+        self.assertEqual(str, type(xpath(ANY_XML, "/root/sub1/text()")[0]))
+        self.assertEqual(["text"], xpath(ANY_XML, "/root/sub1/text()"))
 
     def testXpathFirst(self):
-        self.assertEquals(None, xpathFirst(ANY_XML, "/root/not_found"))
-        self.assertEquals(_Element, type(xpathFirst(ANY_XML, "/root/sub")))
-        self.assertEquals(str, type(xpathFirst(ANY_XML, "/root/sub1/text()")))
-        self.assertEquals("text", xpathFirst(ANY_XML, "/root/sub1/text()"))
+        self.assertEqual(None, xpathFirst(ANY_XML, "/root/not_found"))
+        self.assertEqual(_Element, type(xpathFirst(ANY_XML, "/root/sub")))
+        self.assertEqual(str, type(xpathFirst(ANY_XML, "/root/sub1/text()")))
+        self.assertEqual("text", xpathFirst(ANY_XML, "/root/sub1/text()"))
 
     def testCurieToTagSpeed(self):
         from time import time

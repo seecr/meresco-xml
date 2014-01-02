@@ -27,119 +27,119 @@ from unittest import TestCase
 from lxml.etree import parse, XMLParser
 from meresco.xml.xmlrewrite import XMLRewrite, lxmltostring
 from seecr.test import SeecrTestCase
-from StringIO import StringIO
+from io import BytesIO
 from difflib import unified_diff
 from os.path import dirname, abspath
 
 class XMLRewriteTest(SeecrTestCase):
 
     def assertRewrite(self, rules, newRootTagName, soll, src, defaultNamespace=None, newNsMap={}, schemaLocation={}, sourceNsMap={}):
-        rewrite = XMLRewrite(parse(StringIO(src)), rootTagName=newRootTagName, defaultNameSpace=defaultNamespace,
+        rewrite = XMLRewrite(parse(BytesIO(src)), rootTagName=newRootTagName, defaultNameSpace=defaultNamespace,
                 newNsMap=newNsMap, schemaLocation=schemaLocation, rules=rules, sourceNsMap=sourceNsMap)
         rewrite.applyRules()
         istText = rewrite.toString()
-        s = parse(StringIO(soll), XMLParser(remove_blank_text=True))
-        sollText = lxmltostring(s, pretty_print=True)
+        s = parse(BytesIO(soll), XMLParser(remove_blank_text=True))
+        sollText = lxmltostring(s, pretty_print=True).decode('UTF-8')
         diffs = list(unified_diff(sollText.split('\n'), istText.split('\n'), fromfile='soll', tofile='ist', lineterm=''))
         self.assertFalse(diffs, '\n' + '\n'.join(diffs))
 
     def testOneValue(self):
         # newTag, oldTag, valuesWithInOldTag, template
         rules = [('.', 'b', ('.',), '<y>%s</y>')]
-        src = '<a><b>aap</b></a>'
-        dst = '<z><y>aap</y></z>'
+        src = b'<a><b>aap</b></a>'
+        dst = b'<z><y>aap</y></z>'
         self.assertRewrite(rules, 'z', dst, src)
 
     def testOneValueWithNamespace(self):
         # newTag, oldTag, valuesWithInOldTag, template
         rules = [('.', 'b', ('.',), '<y>%s</y>')]
-        src = '<a><b>aap</b></a>'
-        dst = '<a:z xmlns:a="nsA"><y>aap</y></a:z>'
+        src = b'<a><b>aap</b></a>'
+        dst = b'<a:z xmlns:a="nsA"><y>aap</y></a:z>'
         self.assertRewrite(rules, 'a:z', dst, src, newNsMap={'a':'nsA'})
-    
+
     def testEscaping(self):
         # newTag, oldTag, valuesWithInOldTag, template
         rules = [('y', 'b', ('c',), '<x>%s</x>')]
-        src = '<a><b><c>a&amp;b</c></b></a>'
-        dst = '<z><y><x>a&amp;b</x></y></z>'
+        src = b'<a><b><c>a&amp;b</c></b></a>'
+        dst = b'<z><y><x>a&amp;b</x></y></z>'
         self.assertRewrite(rules, 'z', dst, src)
 
     def testWithTwoValues(self):
         rules = [('.', '.', ('b', 'c'), '<ownTag attr="%s">%s</ownTag>')]
-        src = '<a><b>aap</b><c>noot</c></a>'
-        dst = '<z><ownTag attr="aap">noot</ownTag></z>'
+        src = b'<a><b>aap</b><c>noot</c></a>'
+        dst = b'<z><ownTag attr="aap">noot</ownTag></z>'
         self.assertRewrite(rules, 'z', dst, src)
 
     def testSubPaths(self):
         rules = [('y', '.', ('b',), '<w>%s</w>')]
-        src = '<a><b>aap</b></a>'
-        dst = '<z><y><w>aap</w></y></z>'
+        src = b'<a><b>aap</b></a>'
+        dst = b'<z><y><w>aap</w></y></z>'
         self.assertRewrite(rules, 'z', dst, src)
 
     def testSubPathsInSource(self):
         rules = [('y/x', 'b/c/d', ('e',), '<w>%s</w>')]
-        src = '<a><b><c><d><e>aap</e></d></c></b></a>'
-        dst = '<z><y><x><w>aap</w></x></y></z>'
+        src = b'<a><b><c><d><e>aap</e></d></c></b></a>'
+        dst = b'<z><y><x><w>aap</w></x></y></z>'
         self.assertRewrite(rules, 'z', dst, src)
 
     def testTwoRules(self):
         rules = [   ('y', 'b', ('.',), '<w>%s</w>'),
                         ('x', 'c', ('.',), '<v>%s</v>')]
-        src = '<a><b>aap</b><c>noot</c></a>'
-        dst = '<z><y><w>aap</w></y><x><v>noot</v></x></z>'
+        src = b'<a><b>aap</b><c>noot</c></a>'
+        dst = b'<z><y><w>aap</w></y><x><v>noot</v></x></z>'
         self.assertRewrite(rules, 'z', dst, src)
 
     def testMultipleSourceTagsEndUpInSameAmountOfDstTags(self):
         # for each tag 'b' an tag /z/y is generated
         rules = [   ('y', 'b', ('.',), '<w>%s</w>'),
                         ('x', 'c', ('.',), '<v>%s</v>')]
-        src = '<a><b>aap</b><b>mies</b><c>noot</c></a>'
-        dst = '<z><y><w>aap</w></y><y><w>mies</w></y><x><v>noot</v></x></z>'
+        src = b'<a><b>aap</b><b>mies</b><c>noot</c></a>'
+        dst = b'<z><y><w>aap</w></y><y><w>mies</w></y><x><v>noot</v></x></z>'
         self.assertRewrite(rules, 'z', dst, src)
 
     def testIterationOverSubtags(self):
         # for each tag 'b' an tag /z/y is generated
         rules = [   ('y', 'b/c', ('d',), '%s'),
                 ]
-        src = '<a><b><c><d>aap</d></c><c><d>mies</d></c></b></a>'
-        dst = '<z><y>aap</y><y>mies</y></z>'
+        src = b'<a><b><c><d>aap</d></c><c><d>mies</d></c></b></a>'
+        dst = b'<z><y>aap</y><y>mies</y></z>'
         self.assertRewrite(rules, 'z', dst, src)
 
     def testPandQareInSameContext(self):
         rules = [   ('y/p', 'b', ('.',), '%s'),
                     ('y/q', 'c', ('.',), '%s')]
-        src =    '<a><b>aap</b><b>mies</b><c>noot</c></a>'
-        dst = '<z><y><p>aap</p><p>mies</p><q>noot</q></y></z>'
+        src = b'<a><b>aap</b><b>mies</b><c>noot</c></a>'
+        dst = b'<z><y><p>aap</p><p>mies</p><q>noot</q></y></z>'
         self.assertRewrite(rules, 'z', dst, src)
 
     def testNewContentExistsOfTwoXmlNodes(self):
         rules = [ ('y/r', 'b/c', ('.',), '<s>source</s><p>%s</p>'),
                   ('y/t', 'b/d', ('.',), '%s')]
-        src =    '<a><b><c>aap</c><d>noot</d></b><b><c>mies</c><d>vuur</d></b></a>'
-        dst = '<z><y><r><s>source</s><p>aap</p></r><t>noot</t></y><y><r><s>source</s><p>mies</p></r><t>vuur</t></y></z>'
+        src = b'<a><b><c>aap</c><d>noot</d></b><b><c>mies</c><d>vuur</d></b></a>'
+        dst = b'<z><y><r><s>source</s><p>aap</p></r><t>noot</t></y><y><r><s>source</s><p>mies</p></r><t>vuur</t></y></z>'
         self.assertRewrite(rules, 'z', dst, src)
 
     def testPandQareInSameContextNowWithNamespace(self):
         rules = [   ('dst:y/dst:p', 'src:b', ('.',), '%s'),
                     ('dst:y/dst:q', 'src:c', ('.',), '%s')]
-        src =        '<a xmlns:src="src"><src:b>aap</src:b><src:b>mies</src:b><src:c>noot</src:c></a>'
-        dst = '<z xmlns:dst="dst"><dst:y><dst:p>aap</dst:p><dst:p>mies</dst:p><dst:q>noot</dst:q></dst:y></z>'
+        src = b'<a xmlns:src="src"><src:b>aap</src:b><src:b>mies</src:b><src:c>noot</src:c></a>'
+        dst = b'<z xmlns:dst="dst"><dst:y><dst:p>aap</dst:p><dst:p>mies</dst:p><dst:q>noot</dst:q></dst:y></z>'
         self.assertRewrite(rules, 'z', dst, src, sourceNsMap={'src':'src'}, newNsMap={'dst':'dst'})
 
     def testNotAllElementsAreEqual(self):
         rules = [   ('y/p', 'b/c', ('.',), '%s'),
                         ('y/q', 'b/d', ('.',), '%s')]
-        src = '<a><b><c>aap</c></b><b><c>mies</c><d>noot</d></b></a>'
-        dst = '<z><y><p>aap</p></y><y><p>mies</p><q>noot</q></y></z>'
+        src = b'<a><b><c>aap</c></b><b><c>mies</c><d>noot</d></b></a>'
+        dst = b'<z><y><p>aap</p></y><y><p>mies</p><q>noot</q></y></z>'
         self.assertRewrite(rules, 'z', dst, src)
 
     def testNestedAndRepeatedElementsForPathDir(self):
         rules = [   ('path', 'path', ('source',), '<src>%s</src>'),
                         ('path', 'path', ('dir',), '<directory>%s</directory>')]
-        src = '<a><path><source>A</source><dir>B</dir><dir>C</dir></path>'  \
-                        '<path><source>D</source><dir>E</dir><dir>F</dir></path></a>'
-        soll = '<x><path><src>A</src><directory>B</directory><directory>C</directory></path>' \
-                        '<path><src>D</src><directory>E</directory><directory>F</directory></path></x>'
+        src = b'<a><path><source>A</source><dir>B</dir><dir>C</dir></path>'  \
+              b'<path><source>D</source><dir>E</dir><dir>F</dir></path></a>'
+        soll = b'<x><path><src>A</src><directory>B</directory><directory>C</directory></path>' \
+                        b'<path><src>D</src><directory>E</directory><directory>F</directory></path></x>'
         self.assertRewrite(rules, 'x', soll, src)
 
     def testNamespaceAndSchema(self):
@@ -150,7 +150,7 @@ class XMLRewriteTest(SeecrTestCase):
         #self.assertRewrite(rules, 'x', '<x xmlns="http://ape" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ape http://ape.xsd"/>', '<a/>', defaultNamespace=defaultNamespace, newNsMap=newNsMap, schemaLocation=schemaLocation)
 
         #==
-        srcNode = parse(StringIO('<a/>'))
+        srcNode = parse(BytesIO(b'<a/>'))
         rewrite = XMLRewrite(srcNode, 'x', 'http://ape', rules=[], sourceNsMap={}, schemaLocation={"http://ape": "http://ape.xsd"}, newNsMap={'xsi': "http://www.w3.org/2001/XMLSchema-instance"})
         rewrite.applyRules()
         result = rewrite.toString()
@@ -159,20 +159,20 @@ class XMLRewriteTest(SeecrTestCase):
         self.assertTrue('xsi:schemaLocation="http://ape http://ape.xsd"' in result, result)
 
     def testXPathNameSpaces(self):
-        src = '<x:a xmlns:x="http://x"><x:b>aap</x:b></x:a>'
-        srcNode = parse(StringIO(src))
+        src = b'<x:a xmlns:x="http://x"><x:b>aap</x:b></x:a>'
+        srcNode = parse(BytesIO(src))
         rules = [('p', 'Q:b', ('.',), '%s')]
         rewrite = XMLRewrite(srcNode, 'A', 'http://y', rules=rules, sourceNsMap = {'Q': 'http://x'})
         rewrite.applyRules()
         self.assertEqualsWS('<A xmlns="http://y">\n  <p>aap</p>\n</A>', rewrite.toString())
 
     def testNamespaceInTagVersusXPath(self):
-        src = '<a><b><c>ape</c></b></a>'
-        dst = '<p xmlns="http://p"><q><r>ape</r></q></p>'
+        src = b'<a><b><c>ape</c></b></a>'
+        dst = b'<p xmlns="http://p"><q><r>ape</r></q></p>'
         rules = [('q/r', 'b/c', ('.',), '%s')]
-        rewrite = XMLRewrite(parse(StringIO(src)), 'p', 'http://p', rules=rules)
+        rewrite = XMLRewrite(parse(BytesIO(src)), 'p', 'http://p', rules=rules)
         rewrite.applyRules()
-        self.assertEqualsWS(dst, rewrite.toString())
+        self.assertEqualsWS(dst.decode('UTF-8'), rewrite.toString())
 
     def testProveBugNamespaceProblemInGeneratedTree(self):
         from lxml.etree import Element, ElementTree, SubElement
@@ -184,23 +184,23 @@ class XMLRewriteTest(SeecrTestCase):
         self.assertEquals(0, len(xPathResult)) #and that's exactly what the bug is...
 
     def testXPathWithSlashes(self):
-        src = '<a><b>B1<c><d>aap</d></c></b><b>B2<c><d>noot</d></c></b></a>'
+        src = b'<a><b>B1<c><d>aap</d></c></b><b>B2<c><d>noot</d></c></b></a>'
         rules = [('p', 'b[c/d="aap"]', ('.',), '%s')]
-        rewrite = XMLRewrite(parse(StringIO(src)), 'A', rules=rules)
+        rewrite = XMLRewrite(parse(BytesIO(src)), 'A', rules=rules)
         rewrite.applyRules()
         self.assertEqualsWS('<A>\n  <p>B1</p>\n</A>', rewrite.toString())
 
     def testDefaultNamespacesInTemplates(self):
-        src = "<a><b>ape</b></a>"
+        src = b"<a><b>ape</b></a>"
         rules = [('q', 'b', ('.',), '<r>%s</r>')]
-        rewrite = XMLRewrite(parse(StringIO(src)), 'p', 'ns_Y', rules=rules)
+        rewrite = XMLRewrite(parse(BytesIO(src)), 'p', 'ns_Y', rules=rules)
         rewrite.applyRules()
         self.assertEqualsWS('<p xmlns="ns_Y"><q><r>ape</r></q></p>', rewrite.toString())
 
     def testNamespacesInTemplates(self):
-        src = "<a><b>ape</b></a>"
+        src = b"<a><b>ape</b></a>"
         rules = [('q', 'b', ('.',), '<X:r>%s</X:r>')]
-        rewrite = XMLRewrite(parse(StringIO(src)), 'p', 'ns_Y', rules=rules, newNsMap = {'X': 'ns_X'})
+        rewrite = XMLRewrite(parse(BytesIO(src)), 'p', 'ns_Y', rules=rules, newNsMap = {'X': 'ns_X'})
         rewrite.applyRules()
         self.assertTrue('xmlns:X="ns_X"' in rewrite.toString())
         self.assertTrue('xmlns="ns_Y"' in rewrite.toString())
@@ -234,7 +234,7 @@ class XMLRewriteTest(SeecrTestCase):
         """
 """
 
-        should = """<lom>
+        should = b"""<lom>
 <general>
 <title>
 <string language="nl">Religie Nu (12) Kan theater zonder religie?</string>
@@ -311,10 +311,10 @@ END:VCARD
 </classification>
 </lom>
 """
-        self.assertRewrite(rules, 'lom', should, data.read())
+        self.assertRewrite(rules, 'lom', should, data.read().encode('utf-8'))
 
     def testTaxonPath(self):
-        src ="""<root>
+        src = b"""<root>
             <classification>
                 <taxonpath>
                     <taxon>
@@ -336,7 +336,7 @@ END:VCARD
                 </taxonpath>
             </classification>
             </root>"""
-        dst = """<lom>
+        dst = b"""<lom>
   <classification>
     <taxonPath>
       <taxon>
@@ -363,14 +363,14 @@ END:VCARD
 
     def testNamespaceInNewTag(self):
         rules = [('a:p', 'b:q', ('.',), '%s')]
-        src = '<y><c:q xmlns:c="http://b">aap</c:q></y>'
-        dst = '<z xmlns:a="http://a"><a:p>aap</a:p></z>'
+        src = b'<y><c:q xmlns:c="http://b">aap</c:q></y>'
+        dst = b'<z xmlns:a="http://a"><a:p>aap</a:p></z>'
         self.assertRewrite(rules, 'z', dst, src, sourceNsMap={'b': 'http://b'}, newNsMap={'a': 'http://a'})
 
     def testNormalizeDiffersForEachMatch(self):
         rules = [('a', 'b', ('c', 'd'), '<result c="%s">%s</result>', [[('(.*)', 'CCC %s CCC', (str,))],[('(.*)', 'DDD %s DDD', (str,))]])]
-        src = '<outerTag><b><c>ccc</c><d>ddd</d></b></outerTag>'
-        dst = '<rootTag><a><result c="CCC ccc CCC">DDD ddd DDD</result></a></rootTag>'
+        src = b'<outerTag><b><c>ccc</c><d>ddd</d></b></outerTag>'
+        dst = b'<rootTag><a><result c="CCC ccc CCC">DDD ddd DDD</result></a></rootTag>'
         self.assertRewrite(rules, 'rootTag', dst, src)
 
     def testXPathAfterCrosswalkTest(self):
@@ -378,9 +378,9 @@ END:VCARD
         This is probably a bug in the lxml parser. This test will
         test our workaround"""
         rules = [('mods:originInfo', 'b', ('c',), '<mods:dateIssued>%s</mods:dateIssued>')]
-        src = "<a><b><c>2008-08-01</c></b></a>"
+        src = b"<a><b><c>2008-08-01</c></b></a>"
         rewrite = XMLRewrite(
-            parse(StringIO(src)),
+            parse(BytesIO(src)),
             rootTagName='mods',
             defaultNameSpace = "http://www.loc.gov/mods/v3",
             newNsMap = {'mods': 'http://www.loc.gov/mods/v3'},
@@ -403,8 +403,8 @@ END:VCARD
             'src:one/src:two',
             ('.',), '%s'
             )]
-        src = '<src><one xmlns="source"><two>data</two></one></src>'
-        dst = '<rootTag xmlns:dst="destination"><dst:one><dst:two><dst:three>data</dst:three></dst:two></dst:one></rootTag>'
+        src = b'<src><one xmlns="source"><two>data</two></one></src>'
+        dst = b'<rootTag xmlns:dst="destination"><dst:one><dst:two><dst:three>data</dst:three></dst:two></dst:one></rootTag>'
         self.assertRewrite(rules, 'rootTag', dst, src, sourceNsMap={'src': 'source'}, newNsMap={'dst': 'destination'})
 
 
@@ -412,16 +412,16 @@ END:VCARD
         def myNormalization(c,d):
             return c.lower(), d.lower()
         rules = [('y', 'b', ('c','d'), '%s %s', myNormalization)]
-        src = '<a><b><c>CCC</c><d>DDD</d></b></a>'
-        dst = '<z><y>ccc ddd</y></z>'
+        src = b'<a><b><c>CCC</c><d>DDD</d></b></a>'
+        dst = b'<z><y>ccc ddd</y></z>'
         self.assertRewrite(rules, 'z', dst, src)
 
     def testNormalizeWithFunctionReturningOneElement(self):
         def myNormalization(c,d):
             return '%s %s' % (c.lower(), d.lower()),
         rules = [('y', 'b', ('c','d'), '%s', myNormalization)]
-        src = '<a><b><c>CCC</c><d>DDD</d></b></a>'
-        dst = '<z><y>ccc ddd</y></z>'
+        src = b'<a><b><c>CCC</c><d>DDD</d></b></a>'
+        dst = b'<z><y>ccc ddd</y></z>'
         self.assertRewrite(rules, 'z', dst, src)
 
     def testUseNoneValueFromNormalizationAsFilter(self):
@@ -430,32 +430,32 @@ END:VCARD
                 return (None,)
             return (value,)
         rules = [('y', 'b', ('.',), '%s', filterIgnored)]
-        src = '<a><b>ignoredvalue</b><b>value</b></a>'
+        src = b'<a><b>ignoredvalue</b><b>value</b></a>'
         # in this case an empty tag will be created.
         # this is an already existing "feature"
-        dst = '<z><y/><y>value</y></z>'
+        dst = b'<z><y/><y>value</y></z>'
         self.assertRewrite(rules, 'z', dst, src)
 
     def testNormalizationRulesWithFunction(self):
-        rules = [('y', 'b', 
-            ('c','d'), 
-            '%s %s', 
+        rules = [('y', 'b',
+            ('c','d'),
+            '%s %s',
             (
                 [('(.*)', '%s', (str.lower,))],
                 str.lower
             ))]
-        src = '<a><b><c>CCC</c><d>DDD</d></b></a>'
-        dst = '<z><y>ccc ddd</y></z>'
+        src = b'<a><b><c>CCC</c><d>DDD</d></b></a>'
+        dst = b'<z><y>ccc ddd</y></z>'
         self.assertRewrite(rules, 'z', dst, src)
 
     def testUseNoneValueFromNormalizationRuleAsFilter(self):
         def filterIgnored(value):
             return None if 'ignored' in value else value
         rules = [('y', 'b', ('.',), '%s', [filterIgnored])]
-        src = '<a><b>ignoredvalue</b><b>value</b></a>'
+        src = b'<a><b>ignoredvalue</b><b>value</b></a>'
         # in this case an empty tag will be created.
         # this is an already existing "feature"
-        dst = '<z><y/><y>value</y></z>'
+        dst = b'<z><y/><y>value</y></z>'
         self.assertRewrite(rules, 'z', dst, src)
 
     def testWithLomRecord(self):
@@ -466,16 +466,16 @@ END:VCARD
             ('.',),
             '%s'
         )]
-        src = """<lom:lom xmlns:lom="http://www.imsglobal.org/xsd/imsmd_v1p2">
+        src = b"""<lom:lom xmlns:lom="http://www.imsglobal.org/xsd/imsmd_v1p2">
     <lom:general><lom:catalogentry><lom:catalog>ISBN</lom:catalog></lom:catalogentry></lom:general>
 </lom:lom>"""
-        dst = """<lom xmlns="%s">
+        dst = b"""<lom xmlns="http://ltsc.ieee.org/xsd/LOM">
     <general>
         <identifier>
             <catalog>ISBN</catalog>
         </identifier>
     </general>
-</lom>""" % lomNamespace
+</lom>"""
         self.assertRewrite(rules, 'lom', dst, src, newNsMap={'lom':lomNamespace}, sourceNsMap={'imsmd':'http://www.imsglobal.org/xsd/imsmd_v1p2'}, defaultNamespace=lomNamespace)
 
     def testWithLomRecordNamespaceSortingInRootElement(self):
@@ -486,12 +486,13 @@ END:VCARD
             ('.',),
             '%s'
         )]
-        src = """<lom:lom xmlns:lom="http://www.imsglobal.org/xsd/imsmd_v1p2">
+        src = b"""<lom:lom xmlns:lom="http://www.imsglobal.org/xsd/imsmd_v1p2">
 </lom:lom>"""
         dst = """<lom xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="%s"  xsi:schemaLocation="%s http://example.org/xsd"/>""" % (lomNamespace, lomNamespace)
-        self.assertRewrite(rules, 'lom', dst, src, 
-                newNsMap={'lom':lomNamespace, 'xsi':'http://www.w3.org/2001/XMLSchema-instance'}, 
-                sourceNsMap={'imsmd':'http://www.imsglobal.org/xsd/imsmd_v1p2'}, 
-                defaultNamespace=lomNamespace, 
+        dst = dst.encode('UTF-8')
+        self.assertRewrite(rules, 'lom', dst, src,
+                newNsMap={'lom':lomNamespace, 'xsi':'http://www.w3.org/2001/XMLSchema-instance'},
+                sourceNsMap={'imsmd':'http://www.imsglobal.org/xsd/imsmd_v1p2'},
+                defaultNamespace=lomNamespace,
                 schemaLocation={lomNamespace:'http://example.org/xsd'})
 

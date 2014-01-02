@@ -26,7 +26,7 @@ from re import compile as _compile
 def compile(rule):
 	try:
 		return _compile(rule)
-	except Exception, e:
+	except Exception as e:
 		raise Exception(str(e) + ': ' + rule)
 
 class Normalize(object):

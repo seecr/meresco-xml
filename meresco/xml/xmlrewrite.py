@@ -1,35 +1,36 @@
 ## begin license ##
-# 
-# "Meresco-Xml" is a set of components and tools for handling xml data objects. 
-# 
+#
+# "Meresco-Xml" is a set of components and tools for handling xml data objects.
+#
 # Copyright (C) 2010 Seek You Too (CQ2) http://www.cq2.nl
-# Copyright (C) 2012 Seecr (Seek You Too B.V.) http://seecr.nl
-# 
+# Copyright (C) 2012-2013 Seecr (Seek You Too B.V.) http://seecr.nl
+#
 # This file is part of "Meresco-Xml"
-# 
+#
 # "Meresco-Xml" is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # "Meresco-Xml" is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with "Meresco-Xml"; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-# 
+#
 ## end license ##
 
-from StringIO import StringIO
+from io import BytesIO, StringIO
 from itertools import groupby
-from normalize import Normalize
+from .normalize import Normalize
 from lxml.etree import Element, ElementTree, SubElement, parse, XMLSyntaxError, XPathSyntaxError, _Element, XMLParser
 from lxml.objectify import ObjectifiedElement
 from xml.sax.saxutils import escape as _xmlEscape, unescape as xmlUnescape
 from re import compile
+import collections
 try:
     from meresco.components import lxmltostring
 except ImportError:
@@ -39,7 +40,7 @@ except ImportError:
         return tostring(lxmlNode, encoding="UTF-8", **kwargs)
 
 
-unzip = lambda listOfTuples: zip(*listOfTuples)
+unzip = lambda listOfTuples: list(zip(*listOfTuples))
 xPathSplitter = compile('[^/]*\[[^\]]*\]|[^/]+')
 
 def xmlEscape(value):
@@ -48,8 +49,8 @@ def xmlEscape(value):
 def xpath(node, path, nsmap):
     try:
         return node.xpath(path, namespaces=nsmap)
-    except XPathSyntaxError, e:
-        raise XPathSyntaxError, '"%s" defined prefixes: %s' % (path, nsmap)
+    except XPathSyntaxError as e:
+        raise XPathSyntaxError('"%s" defined prefixes: %s' % (path, nsmap))
 
 class XMLRewrite:
     """
@@ -95,7 +96,7 @@ class XMLRewrite:
                 [('.*', 'text %s text')]
             ]
         Alternative use of rules:
-            Instead of using a list of rules you can use a function to normalize the corresponding 
+            Instead of using a list of rules you can use a function to normalize the corresponding
             valuePath.
             E.g. the previous example can also be written as:
             [
@@ -104,7 +105,7 @@ class XMLRewrite:
             ]
         Alternative use of normalizationRules:
             the normalizationRules can also be a function which will take the values from valuePath as
-            input.  E.g. a method like def myMethod(arg0, arg1): ... can be used when there are 2 
+            input.  E.g. a method like def myMethod(arg0, arg1): ... can be used when there are 2
             valuePaths specified.
 
 
@@ -113,13 +114,13 @@ class XMLRewrite:
 
     def __init__(self, orgElementTree, rootTagName=None, defaultNameSpace=None, schemaLocation=None,
                  rules=None, vocabDict=None, newNsMap=None, sourceNsMap=None):
-        assert isinstance(rootTagName, basestring), type(rootTagName)
+        assert isinstance(rootTagName, str), type(rootTagName)
 
         schemaLocation = schemaLocation or {}
         vocabDict = vocabDict or {}
         newNsMap = newNsMap or {}
         sourceNsMap = sourceNsMap or {}
-       
+
         self.sourceNsMap = sourceNsMap
         self.orgTree = orgElementTree
         if type(orgElementTree) == ObjectifiedElement:
@@ -129,15 +130,15 @@ class XMLRewrite:
 
         self.defaultNameSpace = defaultNameSpace
         if defaultNameSpace:
-            newNsMap = dict((k,v) for k,v in newNsMap.items() if v != defaultNameSpace)
+            newNsMap = dict((k,v) for k,v in list(newNsMap.items()) if v != defaultNameSpace)
             newNsMap[None] = defaultNameSpace
-        
+
         rootTag = rootTagName.split(":")
         if len(rootTag) > 1:
             rootTagName = "{%s}%s" % (newNsMap[rootTag[0]], rootTag[1])
         self._newTree = ElementTree(Element(rootTagName, nsmap=newNsMap))
         if schemaLocation:
-            xsiSchemaLocation = ' '.join('%s %s' % (ns, xsd) for ns, xsd in schemaLocation.items())
+            xsiSchemaLocation = ' '.join('%s %s' % (ns, xsd) for ns, xsd in list(schemaLocation.items()))
             self._newTree.getroot().set('{http://www.w3.org/2001/XMLSchema-instance}schemaLocation', xsiSchemaLocation)
 
         self.rules = rules
@@ -145,12 +146,14 @@ class XMLRewrite:
         self.globalVocabRewrite[None] = ''
 
     def toString(self):
-        return lxmltostring(self._newTree, pretty_print=True)
+        return lxmltostring(self._newTree, pretty_print=True).decode('UTF-8')
 
     def asLxml(self):
-        return parse(StringIO(lxmltostring(self._newTree)))
+        return parse(BytesIO(lxmltostring(self._newTree)))
 
-    def descent(self, (orgContext, orgPath), (newContext, newPath), *args):
+    def descent(self, xxx_todo_changeme, xxx_todo_changeme1, *args):
+        (orgContext, orgPath) = xxx_todo_changeme
+        (newContext, newPath) = xxx_todo_changeme1
         if len(orgPath) > len(newPath):
             for orgContext in xpath(orgContext, orgPath[0], self.sourceNsMap):
                 self.descent((orgContext, orgPath[1:]), (newContext, newPath), *args)
@@ -186,31 +189,31 @@ class XMLRewrite:
                 continue
             try:
                 data = template % arguments
-            except TypeError, e:
+            except TypeError as e:
                 raise TypeError('%s: %s: %s %% %s' % (e, context, template, arguments))
             if data and data.startswith('<'):
                 try:
                     nsString = ' '.join('xmlns:%s="%s"' % (prefix,namespace)
-                        for prefix, namespace in self.newNsMap.items())
+                        for prefix, namespace in list(self.newNsMap.items()))
                     wrapperTag = '<root ' + nsString +">" + data + "</root>"
                     newElements = parse(StringIO(wrapperTag), XMLParser(remove_blank_text=True)).getroot().getchildren()
-                except XMLSyntaxError, e:
+                except XMLSyntaxError as e:
                     raise XMLSyntaxError('%s: %s' % (str(e), (template, arguments, data)))
                 for newElement in newElements:
                     newContext.append(newElement)
             elif data:
-                newContext.text = unicode(xmlUnescape(data))
+                newContext.text = str(xmlUnescape(data))
 
     def mapValues(self, values, normalizationRulesListOrFunction):
         newValues = (self.globalVocabRewrite.get(getattr(value,'text', value), getattr(value,'text', value)) for value in values)
         if normalizationRulesListOrFunction:
-            if callable(normalizationRulesListOrFunction):
+            if isinstance(normalizationRulesListOrFunction, collections.Callable):
                 newValues = normalizationRulesListOrFunction(*newValues)
                 assert isinstance(newValues, tuple), '%s should return a tuple.' % normalizationRulesListOrFunction
             else:
                 normalizedValues = []
                 for newValue, normalizationRulesOrFunction in zip(newValues, normalizationRulesListOrFunction):
-                    if callable(normalizationRulesOrFunction):
+                    if isinstance(normalizationRulesOrFunction, collections.Callable):
                         newNormalizedValue = normalizationRulesOrFunction(newValue)
                     else:
                         newNormalizedValue = Normalize(normalizationRulesOrFunction).process(newValue)

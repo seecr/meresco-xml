@@ -27,7 +27,7 @@
 class _namespaces(dict):
     def __init__(self, *args, **kwargs):
         dict.__init__(self, *args, **kwargs)
-        self._reverse = dict((v,k) for k,v in self.items())
+        self._reverse = dict((v,k) for k,v in list(self.items()))
         self._curieToTag = {}
         self._curieToUri = {}
         self._tagToCurie = {}
