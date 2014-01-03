@@ -30,44 +30,44 @@ from meresco.xml import namespaces
 class NamespacesTest(SeecrTestCase):
     def testCopyUpdate(self):
         ns1 = namespaces
-        self.assertEquals('http://www.loc.gov/zing/srw/', ns1['srw'])
+        self.assertEqual('http://www.loc.gov/zing/srw/', ns1['srw'])
         ns2 = ns1.copyUpdate({'srw':'SRW', 'newPrefix':'URI'})
-        self.assertEquals('http://www.loc.gov/zing/srw/', ns1['srw'])
-        self.assertEquals('SRW', ns2['srw'])
-        self.assertEquals('URI', ns2['newPrefix'])
+        self.assertEqual('http://www.loc.gov/zing/srw/', ns1['srw'])
+        self.assertEqual('SRW', ns2['srw'])
+        self.assertEqual('URI', ns2['newPrefix'])
         self.assertFalse('newPrefix' in ns1)
         self.assertTrue(hasattr(ns2, 'xpath'))
 
     def testSelect(self):
         ns1 = namespaces
-        self.assertEquals('http://www.loc.gov/zing/srw/', ns1['srw'])
-        self.assertEquals('http://purl.org/dc/elements/1.1/', ns1['dc'])
+        self.assertEqual('http://www.loc.gov/zing/srw/', ns1['srw'])
+        self.assertEqual('http://purl.org/dc/elements/1.1/', ns1['dc'])
         ns2 = ns1.select('dc', 'oai')
-        self.assertEquals('http://www.loc.gov/zing/srw/', ns1['srw'])
-        self.assertEquals('http://purl.org/dc/elements/1.1/', ns2['dc'])
-        self.assertEquals('http://www.openarchives.org/OAI/2.0/', ns2['oai'])
+        self.assertEqual('http://www.loc.gov/zing/srw/', ns1['srw'])
+        self.assertEqual('http://purl.org/dc/elements/1.1/', ns2['dc'])
+        self.assertEqual('http://www.openarchives.org/OAI/2.0/', ns2['oai'])
         self.assertFalse('srw' in ns2)
         self.assertTrue(hasattr(ns2, 'xpath'))
 
     def testExpandNsTag(self):
-        self.assertEquals('{http://www.loc.gov/zing/srw/}record', namespaces.expandNsTag('srw:record'))
-        self.assertEquals('{http://purl.org/dc/elements/1.1/}title', namespaces.expandNsTag('dc:title'))
+        self.assertEqual('{http://www.loc.gov/zing/srw/}record', namespaces.expandNsTag('srw:record'))
+        self.assertEqual('{http://purl.org/dc/elements/1.1/}title', namespaces.expandNsTag('dc:title'))
 
     def testExpandNs_backwards_compatible(self):
-        self.assertEquals('{http://purl.org/dc/elements/1.1/}title', namespaces.expandNs('dc:title'))
+        self.assertEqual('{http://purl.org/dc/elements/1.1/}title', namespaces.expandNs('dc:title'))
 
     def testExpandNsUri(self):
-        self.assertEquals('http://www.loc.gov/zing/srw/record', namespaces.expandNsUri('srw:record'))
-        self.assertEquals('http://purl.org/dc/elements/1.1/title', namespaces.expandNsUri('dc:title'))
-        self.assertEquals('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', namespaces.expandNsUri('rdf:type'))
+        self.assertEqual('http://www.loc.gov/zing/srw/record', namespaces.expandNsUri('srw:record'))
+        self.assertEqual('http://purl.org/dc/elements/1.1/title', namespaces.expandNsUri('dc:title'))
+        self.assertEqual('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', namespaces.expandNsUri('rdf:type'))
 
     def testPrefixedTag(self):
-        self.assertEquals('dc:title', namespaces.prefixedTag('{http://purl.org/dc/elements/1.1/}title'))
+        self.assertEqual('dc:title', namespaces.prefixedTag('{http://purl.org/dc/elements/1.1/}title'))
         self.assertRaises(KeyError, namespaces.prefixedTag, '{unknown}tag')
         self.assertRaises(ValueError, namespaces.prefixedTag, 'no-uri-in-tag')
-        self.assertEquals('srw:records', namespaces.prefixedTag(namespaces.expandNsTag('srw:records')))
+        self.assertEqual('srw:records', namespaces.prefixedTag(namespaces.expandNsTag('srw:records')))
         ns2 = namespaces.copyUpdate({'new':'uri:new'})
-        self.assertEquals('new:tag', ns2.prefixedTag('{uri:new}tag'))
+        self.assertEqual('new:tag', ns2.prefixedTag('{uri:new}tag'))
 
     def testNotAllDictMethodsSupported(self):
         def deleteNsItem():
@@ -80,9 +80,9 @@ class NamespacesTest(SeecrTestCase):
         self.assertRaises(TypeError, lambda: namespaces.setdefault('key', 'value'))
 
     def testFormatting(self):
-        self.assertEquals('Uri=http://purl.org/dc/elements/1.1/', 'Uri=%(dc)s' % namespaces)
+        self.assertEqual('Uri=http://purl.org/dc/elements/1.1/', 'Uri=%(dc)s' % namespaces)
 
     def testXmlns(self):
-        self.assertEquals('xmlns:dc="http://purl.org/dc/elements/1.1/"', namespaces['xmlns_dc'])
-        self.assertEquals('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">', '<rdf:RDF %(xmlns_rdf)s>' % namespaces)
+        self.assertEqual('xmlns:dc="http://purl.org/dc/elements/1.1/"', namespaces['xmlns_dc'])
+        self.assertEqual('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">', '<rdf:RDF %(xmlns_rdf)s>' % namespaces)
         self.assertFalse('xmlns_rdf' in list(namespaces.keys()))

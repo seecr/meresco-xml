@@ -175,13 +175,13 @@ class XMLRewriteTest(SeecrTestCase):
         self.assertEqualsWS(dst.decode('UTF-8'), rewrite.toString())
 
     def testProveBugNamespaceProblemInGeneratedTree(self):
-        from lxml.etree import Element, ElementTree, SubElement
+        from lxml.etree import Element, SubElement
         root = Element('root', nsmap={None: 'default_namespace'})
         SubElement(root, 'sub1')
         xPathResult = root.xpath('sub1')
-        self.assertEquals(1, len(xPathResult))
+        self.assertEqual(1, len(xPathResult))
         xPathResult = root.xpath('Y:sub1', namespaces={'Y': 'default_namespace'})
-        self.assertEquals(0, len(xPathResult)) #and that's exactly what the bug is...
+        self.assertEqual(0, len(xPathResult)) #and that's exactly what the bug is...
 
     def testXPathWithSlashes(self):
         src = b'<a><b>B1<c><d>aap</d></c></b><b>B2<c><d>noot</d></c></b></a>'
@@ -207,7 +207,8 @@ class XMLRewriteTest(SeecrTestCase):
         self.assertTrue('<q><X:r>ape</X:r></q></p>', rewrite.toString())
 
     def testCompleteRecord(self):
-        data = open(abspath(dirname(__file__))+'/data/triple-lrecord.xml')
+        with open(abspath(dirname(__file__))+'/data/triple-lrecord.xml') as f:
+            data = f.read()
         rules = [
 #contextPath, oldElementPath, valuePaths, template
 ('general/title', 'general/title/langstring', ('language', 'value'), '<string language="%s">%s</string>'),
@@ -311,7 +312,7 @@ END:VCARD
 </classification>
 </lom>
 """
-        self.assertRewrite(rules, 'lom', should, data.read().encode('utf-8'))
+        self.assertRewrite(rules, 'lom', should, data.encode('utf-8'))
 
     def testTaxonPath(self):
         src = b"""<root>
@@ -391,12 +392,12 @@ END:VCARD
 
         theNewTree = rewrite._newTree # hack to get the original lxml node.
         lxmlResult = theNewTree.xpath('/mods:mods/mods:originInfo/mods:dateIssued/text()', namespaces={'mods': 'http://www.loc.gov/mods/v3'})
-        self.assertEquals([], lxmlResult, """If this test fails, lxml has finally resolved a bug.""")
+        self.assertEqual([], lxmlResult, """If this test fails, lxml has finally resolved a bug.""")
 
         newNode = rewrite.asLxml()
         result = newNode.xpath('/mods:mods/mods:originInfo/mods:dateIssued/text()', namespaces={'mods': 'http://www.loc.gov/mods/v3'})
 
-        self.assertEquals(['2008-08-01'], result)
+        self.assertEqual(['2008-08-01'], result)
 
     def testWithDestinationLengthLongerThanSource(self):
         rules = [(   'dst:one/dst:two/dst:three',
