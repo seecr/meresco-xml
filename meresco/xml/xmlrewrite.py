@@ -151,9 +151,9 @@ class XMLRewrite:
     def asLxml(self):
         return parse(BytesIO(lxmltostring(self._newTree)))
 
-    def descent(self, xxx_todo_changeme, xxx_todo_changeme1, *args):
-        (orgContext, orgPath) = xxx_todo_changeme
-        (newContext, newPath) = xxx_todo_changeme1
+    def descent(self, original, new, *args):
+        (orgContext, orgPath) = original
+        (newContext, newPath) = new
         if len(orgPath) > len(newPath):
             for orgContext in xpath(orgContext, orgPath[0], self.sourceNsMap):
                 self.descent((orgContext, orgPath[1:]), (newContext, newPath), *args)
