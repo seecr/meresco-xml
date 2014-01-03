@@ -39,5 +39,5 @@ class PushParserTest(TestCase):
         parser.feed("<XML><records><record>")
         parser.feed("aap</record>")
 
-        self.assertEquals(1, len(records))
-        self.assertEquals(b'<record>aap</record>', tostring(records[0]))
+        self.assertEqual(1, len(records))
+        self.assertEqual(b'<record>aap</record>', tostring(records[0]))
