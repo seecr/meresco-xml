@@ -2,7 +2,7 @@
 #
 # "Meresco-Xml" is a set of components and tools for handling xml data objects.
 #
-# Copyright (C) 2012-2013 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2012-2014 Seecr (Seek You Too B.V.) http://seecr.nl
 # Copyright (C) 2012-2013 Stichting Bibliotheek.nl (BNL) http://www.bibliotheek.nl
 #
 # This file is part of "Meresco-Xml"
@@ -90,6 +90,7 @@ namespaces = _namespaces(
     foaf="http://xmlns.com/foaf/0.1/",
     html="http://www.w3.org/1999/xhtml",
     meresco_ext="http://meresco.org/namespace/xslt/extensions",
+    meresco_srw="http://meresco.org/namespace/srw#",
     meta="http://meresco.org/namespace/harvester/meta",
     oai="http://www.openarchives.org/OAI/2.0/",
     oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/",
@@ -107,6 +108,7 @@ namespaces = _namespaces(
     ti='http://meresco.org/namespace/timing',
     ucp='info:lc/xmlns/update-v1',
     wsdl='http://schemas.xmlsoap.org/wsdl/',
+    xcql='http://www.loc.gov/zing/cql/xcql/',
     xml='http://www.w3.org/XML/1998/namespace',
     xsd='http://www.w3.org/2001/XMLSchema',
     xsi='http://www.w3.org/2001/XMLSchema-instance',
