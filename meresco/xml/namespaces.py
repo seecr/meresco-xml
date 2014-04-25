@@ -54,21 +54,35 @@ class _namespaces(dict):
     def select(self, *prefixes):
         return self.__class__((k, self[k]) for k in prefixes)
 
-    def expandNsTag(self, name):
+    def curieToTag(self, name):
         ns, value = name.split(':', 1)
         return '{%s}%s' % (self[ns], value)
-    expandNs = expandNsTag
+    expandNs = expandNsTag = curieToTag  # deprecated, kept for backwards compatibility
 
-    def expandNsUri(self, name):
+    def curieToUri(self, name):
         ns, value = name.split(':', 1)
         return '%s%s' % (self[ns], value)
+    expandNsUri = curieToUri  # deprecated, kept for backwards compatibility
 
-    def prefixedTag(self, tag):
+    def tagToCurie(self, tag):
         if not (tag.startswith('{') and '}' in tag):
             raise ValueError("Expected '{some:uri}tagname', but got '%s'" % tag)
         uri, _, localtag = tag[1:].partition('}')
         prefix = self._reverse[uri]
         return '%s:%s' % (prefix, localtag)
+    prefixedTag = tagToCurie  # deprecated, kept for backwards compatibility
+
+    def uriToCurie(self, uri):
+        lhs, divider, localPart = uri.rpartition('#')
+        if not divider:
+            lhs, divider, localPart = uri.rpartition('/')
+        if not divider:
+            raise ValueError('Uri <%s> does not have a hash or slash, cannot guess namespace from this Uri.' % uri)
+        prefix = self.prefixForNs(lhs + divider)
+        return None if prefix is None else prefix + ':' + localPart
+
+    def prefixForNs(self, namespace):
+        return self._reverse.get(namespace)
 
     def _notsupported(self, *args, **kwargs):
         raise TypeError('The namespaces object is readonly. Use select(..) or copyUpdate(..) to create a new namespaces object.')
@@ -120,3 +134,5 @@ xpath = namespaces.xpath
 xpathFirst = namespaces.xpathFirst
 expandNs = namespaces.expandNs
 expandNsUri = namespaces.expandNsUri
+expandNsTag = namespaces.expandNsTag
+
