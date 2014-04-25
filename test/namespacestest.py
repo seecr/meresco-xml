@@ -97,9 +97,18 @@ class NamespacesTest(SeecrTestCase):
         self.assertEquals('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">', '<rdf:RDF %(xmlns_rdf)s>' % namespaces)
         self.assertFalse('xmlns_rdf' in namespaces.keys())
 
-    def testPrefixForNs(self):
-        self.assertEquals('dc', namespaces.prefixForNs(namespaces.dc))
-        self.assertEquals(None, namespaces.prefixForNs('asdfasdf'))
+    def testNsToPrefix(self):
+        self.assertEquals('dc', namespaces.nsToPrefix(namespaces.dc))
+        self.assertEquals(None, namespaces.nsToPrefix('asdfasdf'))
 
     def testUriToCurie(self):
         self.assertEquals('dcterms:fluffy', namespaces.uriToCurie(uri='http://purl.org/dc/terms/fluffy'))
+
+    def testCurieToTagSpeed(self):
+        from time import time
+        t = 0
+        for i in xrange(20000):
+            t0 = time()
+            namespaces.curieToTag('dc:%s' % (i / 200))
+            t += (time() - t0)
+        self.assertTiming(0.025, t, 0.035)

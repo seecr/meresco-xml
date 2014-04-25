@@ -23,10 +23,15 @@
 #
 ## end license ##
 
+
 class _namespaces(dict):
     def __init__(self, *args, **kwargs):
         dict.__init__(self, *args, **kwargs)
         self._reverse = dict((v,k) for k,v in self.items())
+        self._curieToTag = {}
+        self._curieToUri = {}
+        self._tagToCurie = {}
+        self._uriToCurie = {}
 
     def __getattr__(self, key):
         try:
@@ -55,33 +60,57 @@ class _namespaces(dict):
         return self.__class__((k, self[k]) for k in prefixes)
 
     def curieToTag(self, name):
+        try:
+            return self._curieToTag[name]
+        except KeyError:
+            pass
         ns, value = name.split(':', 1)
-        return '{%s}%s' % (self[ns], value)
-    expandNs = expandNsTag = curieToTag  # deprecated, kept for backwards compatibility
+        value = self._curieToTag[name] = '{%s}%s' % (self[ns], value)
+        return value
+
+    expandNsTag = curieToTag  # deprecated
+    expandNs = curieToTag  # deprecated
 
     def curieToUri(self, name):
+        try:
+            return self._curieToUri[name]
+        except KeyError:
+            pass
         ns, value = name.split(':', 1)
-        return '%s%s' % (self[ns], value)
-    expandNsUri = curieToUri  # deprecated, kept for backwards compatibility
+        value = self._curieToUri[name] = '%s%s' % (self[ns], value)
+        return value
+
+    expandNsUri = curieToUri  # deprecated
 
     def tagToCurie(self, tag):
+        try:
+            return self._tagToCurie[tag]
+        except KeyError:
+            pass
         if not (tag.startswith('{') and '}' in tag):
             raise ValueError("Expected '{some:uri}tagname', but got '%s'" % tag)
         uri, _, localtag = tag[1:].partition('}')
         prefix = self._reverse[uri]
-        return '%s:%s' % (prefix, localtag)
+        value = self._tagToCurie[tag] = '%s:%s' % (prefix, localtag)
+        return value
+
     prefixedTag = tagToCurie  # deprecated, kept for backwards compatibility
 
     def uriToCurie(self, uri):
+        try:
+            return self._uriToCurie[uri]
+        except KeyError:
+            pass
         lhs, divider, localPart = uri.rpartition('#')
         if not divider:
             lhs, divider, localPart = uri.rpartition('/')
         if not divider:
             raise ValueError('Uri <%s> does not have a hash or slash, cannot guess namespace from this Uri.' % uri)
-        prefix = self.prefixForNs(lhs + divider)
-        return None if prefix is None else prefix + ':' + localPart
+        prefix = self.nsToPrefix(lhs + divider)
+        value = self._uriToCurie[uri] = None if prefix is None else prefix + ':' + localPart
+        return value
 
-    def prefixForNs(self, namespace):
+    def nsToPrefix(self, namespace):
         return self._reverse.get(namespace)
 
     def _notsupported(self, *args, **kwargs):
@@ -132,7 +161,11 @@ namespaces = _namespaces(
 
 xpath = namespaces.xpath
 xpathFirst = namespaces.xpathFirst
-expandNs = namespaces.expandNs
-expandNsUri = namespaces.expandNsUri
-expandNsTag = namespaces.expandNsTag
 
+curieToTag = namespaces.curieToTag
+curieToUri = namespaces.curieToUri
+tagToCurie = namespaces.tagToCurie
+uriToCurie = namespaces.uriToCurie
+
+expandNs = namespaces.curieToTag  # deprecated
+expandNsUri = namespaces.curieToUri  # deprecated
