@@ -107,6 +107,8 @@ class _namespaces(dict):
         if not divider:
             raise ValueError('Uri <%s> does not have a hash or slash, cannot guess namespace from this Uri.' % uri)
         prefix = self.nsToPrefix(lhs + divider)
+        if prefix is None:
+            raise ValueError('No namespace could be determined for uri <%s>.' % uri)
         value = self._uriToCurie[uri] = None if prefix is None else prefix + ':' + localPart
         return value
 

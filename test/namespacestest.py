@@ -104,6 +104,18 @@ class NamespacesTest(SeecrTestCase):
     def testUriToCurie(self):
         self.assertEquals('dcterms:fluffy', namespaces.uriToCurie(uri='http://purl.org/dc/terms/fluffy'))
 
+        try:
+            namespaces.uriToCurie(uri="urn:ISBN:12345")
+            self.fail()
+        except ValueError, e:
+            self.assertEquals('Uri <urn:ISBN:12345> does not have a hash or slash, cannot guess namespace from this Uri.', str(e))
+
+        try:
+            namespaces.uriToCurie(uri=namespaces.xml + 'lang')
+            self.fail()
+        except ValueError, e:
+            self.assertEquals('No namespace could be determined for uri <http://www.w3.org/XML/1998/namespacelang>.', str(e))
+
     def testCurieToTagSpeed(self):
         from time import time
         t = 0
