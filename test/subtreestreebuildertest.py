@@ -43,6 +43,12 @@ xpath = namespaces.xpath
 xpathFirst = namespaces.xpathFirst
 
 
+# lxml / LibXML implementation detail; data feed()'ed can be buffered or otherwise unprocessed, until close() is called on the feedparsing interface.
+# This will result in 0...n (start|comment|data|pi|end)-calls and
+# then a close-call on the TreeBuilder-interface.
+#
+# Therefor, getSubtrees() *must* be called after a close() on the XMLParser.
+
 class SubTreesTreeBuilderTest(SeecrTestCase):
     def testParseAndProcessSimpleFile(self):
         builder = SubTreesTreeBuilder(elementPath=['records', 'record'])
@@ -101,6 +107,21 @@ class SubTreesTreeBuilderTest(SeecrTestCase):
             xpathFirst(parseString(XML), '/records'),
             result[5][1])
 
+    def testIdentityTransformWithNS(self):
+        builder = SubTreesTreeBuilder(buildFor={
+            'one': lambda stack: [d['tag'] for d in stack] == ['{u:ri/default#}root'],
+        })
+        parser = XMLParser(target=builder)
+        parser.feed(XML_NS)
+        parser.close()
+
+        subtrees = [t for t in builder.getSubtrees()]
+        self.assertEquals(1, len(subtrees))
+
+        id, lxml = subtrees[0]
+        self.assertEquals('one', id)
+        self.assertEqualsLxml(parseString(XML_NS), lxml)
+
     def testNamespacePrefixesAndDefaultsPreserved(self):
         builder = SubTreesTreeBuilder(buildFor={
             'sub_def': lambda stack: [d['tag'] for d in stack] == ['{u:ri/default#}root', '{u:ri/default#}subInDefaultNS'],
@@ -141,22 +162,6 @@ class SubTreesTreeBuilderTest(SeecrTestCase):
 
         self.assertEquals(3, len(result))
         self.assertEquals('b', result[0].tag)
-
-    def testMustCallGetSubtreesAfterCloseToo(self):
-        xml = """<a><b/></a>"""
-        builder = SubTreesTreeBuilder(buildFor={
-            'bee': lambda stack: [d['tag'] for d in stack] == ['a', 'b'],
-        })
-        parser = XMLParser(target=builder)
-
-        parser.feed(xml)
-        self.assertEquals([], list(builder.getSubtrees()))
-
-        parser.close()
-        result = list(builder.getSubtrees())
-        self.assertEquals(1, len(result))
-        self.assertEquals('bee', result[0][0])
-        self.assertEquals('<b/>', tostring(result[0][1]))
 
     def testOnResult(self):
         trees = []

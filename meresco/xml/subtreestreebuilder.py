@@ -49,6 +49,7 @@ class SubTreesTreeBuilder(object):
         return enrichedNSmap
 
     def getSubtrees(self):
+        # *Must* be called after XMLParser.close() too!
         while self._subtrees:
             yield self._subtrees.pop(0)
 
