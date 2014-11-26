@@ -48,10 +48,7 @@ class _namespaces(dict):
         return result
 
     def xpath(self, node, path):
-        return [
-            str(n) if type(n) is _ElementStringResult else n
-            for n in node.xpath(path, namespaces=self)
-        ]
+        return node.xpath(path, namespaces=self, smart_strings=False)
 
     def xpathFirst(self, node, path):
         nodes = self.xpath(node, path)
