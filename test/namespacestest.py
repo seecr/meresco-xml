@@ -2,7 +2,7 @@
 #
 # "Meresco-Xml" is a set of components and tools for handling xml data objects.
 #
-# Copyright (C) 2012-2013 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2012-2014 Seecr (Seek You Too B.V.) http://seecr.nl
 # Copyright (C) 2012-2013 Stichting Bibliotheek.nl (BNL) http://www.bibliotheek.nl
 #
 # This file is part of "Meresco-Xml"
@@ -25,7 +25,8 @@
 
 from seecr.test import SeecrTestCase
 
-from meresco.xml import namespaces
+from meresco.xml import namespaces, xpathFirst, xpath
+from lxml.etree import XML, _Element
 
 
 class NamespacesTest(SeecrTestCase):
@@ -104,6 +105,17 @@ class NamespacesTest(SeecrTestCase):
     def testUriToCurie(self):
         self.assertEquals('dcterms:fluffy', namespaces.uriToCurie(uri='http://purl.org/dc/terms/fluffy'))
 
+    def testXpath(self):
+        self.assertEquals(_Element, type(xpath(ANY_XML, "/root/sub")[0]))
+        self.assertEquals(str, type(xpath(ANY_XML, "/root/sub1/text()")[0]))
+        self.assertEquals(["text"], xpath(ANY_XML, "/root/sub1/text()"))
+
+    def testXpathFirst(self):
+        self.assertEquals(None, xpathFirst(ANY_XML, "/root/not_found"))
+        self.assertEquals(_Element, type(xpathFirst(ANY_XML, "/root/sub")))
+        self.assertEquals(str, type(xpathFirst(ANY_XML, "/root/sub1/text()")))
+        self.assertEquals("text", xpathFirst(ANY_XML, "/root/sub1/text()"))
+
     def testCurieToTagSpeed(self):
         from time import time
         t = 0
@@ -112,3 +124,11 @@ class NamespacesTest(SeecrTestCase):
             namespaces.curieToTag('dc:%s' % (i / 200))
             t += (time() - t0)
         self.assertTiming(0.025, t, 0.035)
+
+ANY_XML = XML('''\
+<root>
+  <sub>
+    <stuff/>
+  </sub>
+  <sub1>text</sub1>
+</root>''')

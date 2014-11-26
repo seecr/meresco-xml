@@ -22,6 +22,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ## end license ##
+from lxml.etree import _ElementStringResult
 
 
 class _namespaces(dict):
@@ -47,7 +48,10 @@ class _namespaces(dict):
         return result
 
     def xpath(self, node, path):
-        return node.xpath(path, namespaces=self)
+        return [
+            str(n) if type(n) is _ElementStringResult else n
+            for n in node.xpath(path, namespaces=self)
+        ]
 
     def xpathFirst(self, node, path):
         nodes = self.xpath(node, path)
