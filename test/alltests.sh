@@ -26,7 +26,7 @@
 
 export LANG=en_US.UTF-8
 export PYTHONPATH=.:"$PYTHONPATH"
-pyversions="python3.2"
+pyversions="python3"
 option=$1
 if [ "${option:0:10}" == "--python3." ]; then
     shift
