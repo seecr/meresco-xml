@@ -79,6 +79,26 @@ class NamespacesTest(SeecrTestCase):
 
     def testPrefixedTag_backwardsCompatible(self):
         self.assertEqual('dc:title', namespaces.prefixedTag('{http://purl.org/dc/elements/1.1/}title'))
+    
+    def testExpandNsTag(self):
+        self.assertEqual('{http://www.loc.gov/zing/srw/}record', namespaces.expandNsTag('srw:record'))
+        self.assertEqual('{http://purl.org/dc/elements/1.1/}title', namespaces.expandNsTag('dc:title'))
+
+    def testExpandNs_backwards_compatible(self):
+        self.assertEqual('{http://purl.org/dc/elements/1.1/}title', namespaces.expandNs('dc:title'))
+
+    def testExpandNsUri(self):
+        self.assertEqual('http://www.loc.gov/zing/srw/record', namespaces.expandNsUri('srw:record'))
+        self.assertEqual('http://purl.org/dc/elements/1.1/title', namespaces.expandNsUri('dc:title'))
+        self.assertEqual('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', namespaces.expandNsUri('rdf:type'))
+
+    def testPrefixedTag(self):
+        self.assertEqual('dc:title', namespaces.prefixedTag('{http://purl.org/dc/elements/1.1/}title'))
+        self.assertRaises(KeyError, namespaces.prefixedTag, '{unknown}tag')
+        self.assertRaises(ValueError, namespaces.prefixedTag, 'no-uri-in-tag')
+        self.assertEqual('srw:records', namespaces.prefixedTag(namespaces.expandNsTag('srw:records')))
+        ns2 = namespaces.copyUpdate({'new':'uri:new'})
+        self.assertEqual('new:tag', ns2.prefixedTag('{uri:new}tag'))
 
     def testNotAllDictMethodsSupported(self):
         def deleteNsItem():
