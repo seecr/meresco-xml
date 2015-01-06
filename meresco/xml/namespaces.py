@@ -42,9 +42,7 @@ class _namespaces(dict):
     def __getitem__(self, key):
         _, xmlns, key = key.rpartition('xmlns_')
         result = dict.__getitem__(self, key)
-        if xmlns == 'xmlns_':
-            return 'xmlns:%s="%s"' % (key, result)
-        return result
+        return result if xmlns != 'xmlns_' else 'xmlns:' + key + '="' + result + '"'
 
     def xpath(self, node, path):
         return node.xpath(path, namespaces=self, smart_strings=False)
@@ -60,13 +58,11 @@ class _namespaces(dict):
         return self.__class__((k, self[k]) for k in prefixes)
 
     def curieToTag(self, name):
-        try:
-            return self._curieToTag[name]
-        except KeyError:
-            pass
-        ns, value = name.split(':', 1)
-        value = self._curieToTag[name] = '{%s}%s' % (self[ns], value)
-        return value
+        if not name in self._curieToTag:
+            ns, value = name.split(':', 1)
+            self._curieToTag[name] = '{' + self[ns] + '}' + value
+
+        return self._curieToTag[name]
 
     expandNsTag = curieToTag  # deprecated
     expandNs = curieToTag  # deprecated

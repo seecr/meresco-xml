@@ -116,10 +116,10 @@ class SubTreesTreeBuilderTest(SeecrTestCase):
         parser.close()
 
         subtrees = [t for t in builder.getSubtrees()]
-        self.assertEquals(1, len(subtrees))
+        self.assertEqual(1, len(subtrees))
 
         id, lxml = subtrees[0]
-        self.assertEquals('one', id)
+        self.assertEqual('one', id)
         self.assertEqualsLxml(parseString(XML_NS), lxml)
 
     def testNamespacePrefixesAndDefaultsPreserved(self):

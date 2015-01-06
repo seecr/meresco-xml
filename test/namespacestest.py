@@ -119,11 +119,11 @@ class NamespacesTest(SeecrTestCase):
     def testCurieToTagSpeed(self):
         from time import time
         t = 0
-        for i in xrange(20000):
+        for i in ['dc:%s' % str(int(i/200)) for i in range(20000)]: 
             t0 = time()
-            namespaces.curieToTag('dc:%s' % (i / 200))
+            namespaces.curieToTag(i)
             t += (time() - t0)
-        self.assertTiming(0.025, t, 0.035)
+        self.assertTiming(0.020, t, 0.030)
 
 ANY_XML = XML('''\
 <root>
