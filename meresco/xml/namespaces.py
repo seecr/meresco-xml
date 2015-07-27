@@ -2,7 +2,7 @@
 #
 # "Meresco-Xml" is a set of components and tools for handling xml data objects.
 #
-# Copyright (C) 2012-2014 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2012-2015 Seecr (Seek You Too B.V.) http://seecr.nl
 # Copyright (C) 2012-2013 Stichting Bibliotheek.nl (BNL) http://www.bibliotheek.nl
 #
 # This file is part of "Meresco-Xml"
@@ -124,32 +124,50 @@ class _namespaces(dict):
 
 
 namespaces = _namespaces(
+    bibo="http://purl.org/ontology/bibo/",
+    daia="http://purl.org/ontology/daia/",
+    dbpo="http://dbpedia.org/ontology/",
+    dbpr="http://dbpedia.org/resource/",
     dc="http://purl.org/dc/elements/1.1/",
+    dcam="http://purl.org/dc/dcam/",
     dcterms="http://purl.org/dc/terms/",
     diag='http://www.loc.gov/zing/srw/diagnostic/',
     document="http://meresco.org/namespace/harvester/document",
     drilldown="http://meresco.org/namespace/drilldown",
     edm="http://www.europeana.eu/schemas/edm/",
     foaf="http://xmlns.com/foaf/0.1/",
+    geo="http://www.w3.org/2003/01/geo/wgs84_pos#",
     html="http://www.w3.org/1999/xhtml",
+    lom="http://ltsc.ieee.org/xsd/LOM",
+    marcrel="http://id.loc.gov/vocabulary/relators/",
     meresco_ext="http://meresco.org/namespace/xslt/extensions",
     meresco_srw="http://meresco.org/namespace/srw#",
     meta="http://meresco.org/namespace/harvester/meta",
+    mo="http://purl.org/ontology/mo/",
+    oa="http://www.w3.org/ns/oa#",
     oai="http://www.openarchives.org/OAI/2.0/",
     oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/",
     oaiprov="http://www.openarchives.org/OAI/2.0/provenance",
+    ore='http://www.openarchives.org/ore/terms/',
     owl="http://www.w3.org/2002/07/owl#",
     prov="http://www.w3.org/ns/prov#",
     rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     rdfs="http://www.w3.org/2000/01/rdf-schema#",
+    ri="http://meresco.org/namespace/responseInfo",
+    schema="http://schema.org/",
     sfr="http://docs.oasis-open.org/ns/search-ws/facetedResults",
     skos="http://www.w3.org/2004/02/skos/core#",
+    soap="http://schemas.xmlsoap.org/wsdl/soap/",
     soapenv="http://schemas.xmlsoap.org/soap/envelope/",
+    sparql="http://www.w3.org/2005/sparql-results#",
     srw='http://www.loc.gov/zing/srw/',
     srw_dc='info:srw/schema/1/dc-v1.1',
     sug='http://meresco.org/namespace/suggestions',
     ti='http://meresco.org/namespace/timing',
+    time="http://www.w3.org/2006/time#",
+    tl="http://purl.org/NET/c4dm/timeline.owl#",
     ucp='info:lc/xmlns/update-v1',
+    vcard="http://www.w3.org/2006/vcard/ns#",
     wsdl='http://schemas.xmlsoap.org/wsdl/',
     xcql='http://www.loc.gov/zing/cql/xcql/',
     xml='http://www.w3.org/XML/1998/namespace',
