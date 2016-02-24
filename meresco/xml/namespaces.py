@@ -2,7 +2,7 @@
 #
 # "Meresco-Xml" is a set of components and tools for handling xml data objects.
 #
-# Copyright (C) 2012-2015 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2012-2016 Seecr (Seek You Too B.V.) http://seecr.nl
 # Copyright (C) 2012-2013 Stichting Bibliotheek.nl (BNL) http://www.bibliotheek.nl
 #
 # This file is part of "Meresco-Xml"
@@ -32,6 +32,8 @@ class _namespaces(dict):
         self._curieToUri = {}
         self._tagToCurie = {}
         self._uriToCurie = {}
+        self._uriToTag = {}
+        self._tagToUri = {}
 
     def __getattr__(self, key):
         try:
@@ -110,6 +112,22 @@ class _namespaces(dict):
         value = self._uriToCurie[uri] = None if prefix is None else prefix + ':' + localPart
         return value
 
+    def uriToTag(self, uri):
+        try:
+            return self._uriToTag[uri]
+        except KeyError:
+            pass
+        value = self._uriToTag[uri] = curieToTag(uriToCurie(uri))
+        return value
+
+    def tagToUri(self, tag):
+        try:
+            return self._tagToUri[tag]
+        except KeyError:
+            pass
+        value = self._tagToUri[tag] = curieToUri(tagToCurie(tag))
+        return value
+
     def nsToPrefix(self, namespace):
         return self._reverse.get(namespace)
 
@@ -184,6 +202,8 @@ curieToTag = namespaces.curieToTag
 curieToUri = namespaces.curieToUri
 tagToCurie = namespaces.tagToCurie
 uriToCurie = namespaces.uriToCurie
+uriToTag = namespaces.uriToTag
+tagToUri = namespaces.tagToUri
 
 expandNs = namespaces.curieToTag  # deprecated
 expandNsUri = namespaces.curieToUri  # deprecated
