@@ -4,7 +4,7 @@
 # "Meresco-Xml" is a set of components and tools for handling xml data objects.
 #
 # Copyright (C) 2005-2010 Seek You Too (CQ2) http://www.cq2.nl
-# Copyright (C) 2011-2013 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2011-2013, 2016 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Meresco-Xml"
 #
@@ -26,8 +26,8 @@
 
 from sys import path as sysPath                   #DO_NOT_DISTRIBUTE
 from os import system                             #DO_NOT_DISTRIBUTE
-system("find .. -name '*.pyc' | xargs rm -f")     #DO_NOT_DISTRIBUTE 
-                                                  #DO_NOT_DISTRIBUTE 
+system("find .. -name '*.pyc' | xargs rm -f")     #DO_NOT_DISTRIBUTE
+                                                  #DO_NOT_DISTRIBUTE
 from glob import glob                             #DO_NOT_DISTRIBUTE
 for path in glob('../deps.d/*'):                  #DO_NOT_DISTRIBUTE
     sysPath.insert(0, path)                       #DO_NOT_DISTRIBUTE
@@ -40,7 +40,6 @@ from normalizetest import NormalizeTest
 from pushparsertest import PushParserTest
 from subtreestreebuildertest import SubTreesTreeBuilderTest
 from utilstest import UtilsTest
-from xmlrewritetest import XMLRewriteTest
 
 if __name__ == '__main__':
     unittest.main()
