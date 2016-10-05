@@ -143,6 +143,7 @@ class _namespaces(dict):
 
 namespaces = _namespaces(
     bibo="http://purl.org/ontology/bibo/",
+    dai="info:eu-repo/dai",
     daia="http://purl.org/ontology/daia/",
     dbpo="http://dbpedia.org/ontology/",
     dbpr="http://dbpedia.org/resource/",
@@ -150,6 +151,8 @@ namespaces = _namespaces(
     dcam="http://purl.org/dc/dcam/",
     dcterms="http://purl.org/dc/terms/",
     diag='http://www.loc.gov/zing/srw/diagnostic/',
+    didl='urn:mpeg:mpeg21:2002:02-DIDL-NS',
+    dii='urn:mpeg:mpeg21:2002:01-DII-NS',
     document="http://meresco.org/namespace/harvester/document",
     drilldown="http://meresco.org/namespace/drilldown",
     edm="http://www.europeana.eu/schemas/edm/",
@@ -162,6 +165,7 @@ namespaces = _namespaces(
     meresco_srw="http://meresco.org/namespace/srw#",
     meta="http://meresco.org/namespace/harvester/meta",
     mo="http://purl.org/ontology/mo/",
+    mods="http://www.loc.gov/mods/v3",
     oa="http://www.w3.org/ns/oa#",
     oai="http://www.openarchives.org/OAI/2.0/",
     oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/",
