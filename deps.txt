@@ -1,7 +1,2 @@
-#squeeze:python-lxml (>= 2.1)
-#squeeze:python-lxml (<< 3.0)
-#wheezy:python-lxml (>= 2.1)
-#wheezy:python-lxml (<< 3.0)
-#jessie:python-lxml (>= 3.0)
-#jessie:python-lxml (<< 4.0)
+python-lxml
 python-meresco-core (>= 4.0)
