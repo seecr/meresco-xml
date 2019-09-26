@@ -1,4 +1,3 @@
-#!/usr/bin/env python2.6
 ## begin license ##
 #
 # "Meresco-Xml" is a set of components and tools for handling xml data objects.
