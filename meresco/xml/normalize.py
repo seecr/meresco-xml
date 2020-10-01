@@ -3,7 +3,7 @@
 # "Meresco-Xml" is a set of components and tools for handling xml data objects.
 #
 # Copyright (C) 2010 Seek You Too (CQ2) http://www.cq2.nl
-# Copyright (C) 2015 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2015, 2020 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Meresco-Xml"
 #
@@ -28,7 +28,7 @@ from re import compile as _compile
 def compile(rule):
 	try:
 		return _compile(rule)
-	except Exception, e:
+	except Exception as e:
 		raise Exception(str(e) + ': ' + rule)
 
 class Normalize(object):

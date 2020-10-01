@@ -4,7 +4,7 @@
 # "Meresco-Xml" is a set of components and tools for handling xml data objects.
 #
 # Copyright (C) 2005-2010 Seek You Too (CQ2) http://www.cq2.nl
-# Copyright (C) 2011, 2013 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2011, 2013, 2020 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Meresco-Xml"
 #
@@ -28,4 +28,4 @@ export LANG=en_US.UTF-8
 export PYTHONPATH=.:"$PYTHONPATH"
 export WEIGHTLESS_COMPOSE_TEST="PYTHON"
 
-python2 _alltests.py "$@"
+python3 _alltests.py "$@"

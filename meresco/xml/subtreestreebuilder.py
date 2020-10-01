@@ -2,7 +2,7 @@
 #
 # "Meresco-Xml" is a set of components and tools for handling xml data objects.
 #
-# Copyright (C) 2013 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2013, 2020 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Meresco-Xml"
 #
@@ -39,7 +39,7 @@ class SubTreesTreeBuilder(object):
         self._stack = []
 
     def buildFor(self):
-        return [id for (id, f) in self._buildFor.items() if f(self._stack)]
+        return [id for (id, f) in list(self._buildFor.items()) if f(self._stack)]
 
     def _nsmapFullStack(self):
         enrichedNSmap = {}
@@ -58,7 +58,7 @@ class SubTreesTreeBuilder(object):
             nsmap = {}
         self._stack.append({'tag': tag, 'attrs': attrs, 'nsmap': nsmap})
 
-        for tb in self._currentTreeBuilders.values():
+        for tb in list(self._currentTreeBuilders.values()):
             tb.start(tag, attrs, nsmap)
 
         builders = self.buildFor()
@@ -70,11 +70,11 @@ class SubTreesTreeBuilder(object):
                 self._currentTreeBuilders[id] = builder
 
     def comment(self, comment):
-        for tb in self._currentTreeBuilders.values():
+        for tb in list(self._currentTreeBuilders.values()):
             tb.comment(comment)
 
     def data(self, data):
-        for tb in self._currentTreeBuilders.values():
+        for tb in list(self._currentTreeBuilders.values()):
             tb.data(data)
 
     def end(self, tag):
@@ -84,7 +84,7 @@ class SubTreesTreeBuilder(object):
         if not self._currentTreeBuilders:
             return
 
-        for tb in self._currentTreeBuilders.values():
+        for tb in list(self._currentTreeBuilders.values()):
             tb.end(tag)
 
         if builders:
@@ -96,7 +96,7 @@ class SubTreesTreeBuilder(object):
                 del self._currentTreeBuilders[id]
 
     def pi(self, target, data):
-        for tb in self._currentTreeBuilders.values():
+        for tb in list(self._currentTreeBuilders.values()):
             tb.pi(target, data)
 
     def close(self):

@@ -2,7 +2,7 @@
 #
 # "Meresco-Xml" is a set of components and tools for handling xml data objects.
 #
-# Copyright (C) 2012-2016 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2012-2016, 2020 Seecr (Seek You Too B.V.) http://seecr.nl
 # Copyright (C) 2012-2013 Stichting Bibliotheek.nl (BNL) http://www.bibliotheek.nl
 #
 # This file is part of "Meresco-Xml"
@@ -27,7 +27,7 @@
 class _namespaces(dict):
     def __init__(self, *args, **kwargs):
         dict.__init__(self, *args, **kwargs)
-        self._reverse = dict((v,k) for k,v in self.items())
+        self._reverse = dict((v,k) for k,v in list(self.items()))
         self._curieToTag = {}
         self._curieToUri = {}
         self._tagToCurie = {}

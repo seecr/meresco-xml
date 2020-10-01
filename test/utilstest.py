@@ -2,7 +2,7 @@
 #
 # "Meresco-Xml" is a set of components and tools for handling xml data objects.
 #
-# Copyright (C) 2011, 2017 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2011, 2017, 2020 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Meresco-Xml"
 #
@@ -32,7 +32,7 @@ class UtilsTest(SeecrTestCase):
         input = """<a:root xmlns:b="namespace B" xmlns:a="namespace A">
     <b:sub>tag</b:sub>
 </a:root>"""
-        self.assertEquals("""<a:root xmlns:a="namespace A" xmlns:b="namespace B">
+        self.assertEqual("""<a:root xmlns:a="namespace A" xmlns:b="namespace B">
     <b:sub>tag</b:sub>
 </a:root>""", sortRootTagAttrib(input))
 

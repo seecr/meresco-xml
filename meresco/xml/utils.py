@@ -2,7 +2,7 @@
 #
 # "Meresco-Xml" is a set of components and tools for handling xml data objects.
 #
-# Copyright (C) 2011, 2014, 2017 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2011, 2014, 2017, 2020 Seecr (Seek You Too B.V.) http://seecr.nl
 # Copyright (C) 2014 Stichting Bibliotheek.nl (BNL) http://www.bibliotheek.nl
 #
 # This file is part of "Meresco-Xml"
@@ -58,12 +58,12 @@ def createElement(name, text=None, attrib=None, nsmap=None, namespaces=_namespac
     if text is not None:
         element.text = removeControlCharacters(text)
     if attrib:
-        for k,v in attrib.items():
+        for k,v in list(attrib.items()):
             attr = namespaces.curieToTag(k) if ':' in k else k
             element.attrib[attr] = removeControlCharacters(v)
     return element
 
 _controlchars_replacement = {i:None for i in range(ord(' ')) if i not in [ord('\r'), ord('\t'), ord('\n')]}
 def removeControlCharacters(aString):
-    return unicode(aString).translate(_controlchars_replacement)
+    return str(aString).translate(_controlchars_replacement)
 

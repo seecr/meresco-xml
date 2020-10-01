@@ -2,7 +2,7 @@
 #
 # "Meresco-Xml" is a set of components and tools for handling xml data objects.
 #
-# Copyright (C) 2013 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2013, 2020 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Meresco-Xml"
 #
@@ -30,7 +30,7 @@ from meresco.xml.subtreestreebuilder import SubTreesTreeBuilder, SimpleSaxFilePa
 from lxml.etree import parse, XMLParser, tostring
 
 from math import ceil
-from StringIO import StringIO
+from io import StringIO
 
 
 namespaces = namespaces.copyUpdate({
@@ -54,9 +54,9 @@ class SubTreesTreeBuilderTest(SeecrTestCase):
         builder = SubTreesTreeBuilder(elementPath=['records', 'record'])
         result, loops = parseIncrementallyBy20(builder=builder, inputXml=XML)
 
-        self.assertEquals(ceil(len(XML) / 20.0), loops)
-        self.assertEquals(3, len(result))
-        self.assertEquals(['record']*3, [r[0] for r in result])
+        self.assertEqual(ceil(len(XML) / 20.0), loops)
+        self.assertEqual(3, len(result))
+        self.assertEqual(['record']*3, [r[0] for r in result])
         self.assertEqualsLxml(
             xpathFirst(parseString(XML), '/records/record[1]'),
             result[0][1])
@@ -69,8 +69,8 @@ class SubTreesTreeBuilderTest(SeecrTestCase):
         })
         result, loops = parseIncrementallyBy20(builder=builder, inputXml=XML2)
 
-        self.assertEquals(2, len(result))
-        self.assertEquals(['sub']*2, [r[0] for r in result])
+        self.assertEqual(2, len(result))
+        self.assertEqual(['sub']*2, [r[0] for r in result])
         self.assertEqualsLxml(
             xpathFirst(parseString(XML2), '/root/sub[1]'),
             result[0][1])
@@ -87,7 +87,7 @@ class SubTreesTreeBuilderTest(SeecrTestCase):
         })
         result, loops = parseIncrementallyBy20(builder=builder, inputXml=XML)
 
-        self.assertEquals(['record', 'record', 'default-ns', 'prefixed', 'record', 'records'], [r[0] for r in result])
+        self.assertEqual(['record', 'record', 'default-ns', 'prefixed', 'record', 'records'], [r[0] for r in result])
         self.assertEqualsLxml(
             xpathFirst(parseString(XML), '/records/record[1]'),
             result[0][1])
@@ -116,10 +116,10 @@ class SubTreesTreeBuilderTest(SeecrTestCase):
         parser.close()
 
         subtrees = [t for t in builder.getSubtrees()]
-        self.assertEquals(1, len(subtrees))
+        self.assertEqual(1, len(subtrees))
 
         id, lxml = subtrees[0]
-        self.assertEquals('one', id)
+        self.assertEqual('one', id)
         self.assertEqualsLxml(parseString(XML_NS), lxml)
 
     def testNamespacePrefixesAndDefaultsPreserved(self):
@@ -133,8 +133,8 @@ class SubTreesTreeBuilderTest(SeecrTestCase):
         })
         result, loops = parseIncrementallyBy20(builder=builder, inputXml=XML_NS)
 
-        self.assertEquals(6, len(result))
-        self.assertEquals(['prefixed', 'preinside', 'node', 'newdefault', 'preother', 'sub_def'], [r[0] for r in result])
+        self.assertEqual(6, len(result))
+        self.assertEqual(['prefixed', 'preinside', 'node', 'newdefault', 'preother', 'sub_def'], [r[0] for r in result])
         self.assertEqualsLxml(
             xpathFirst(parseString(XML_NS), '/def_:root/def_:subInDefaultNS/pre_:fixed'),
             result[0][1])
@@ -160,8 +160,8 @@ class SubTreesTreeBuilderTest(SeecrTestCase):
         saxfp = SimpleSaxFileParser(stream=xml, path=['a', 'b'], callback=result.append)
         saxfp.start()
 
-        self.assertEquals(3, len(result))
-        self.assertEquals('b', result[0].tag)
+        self.assertEqual(3, len(result))
+        self.assertEqual('b', result[0].tag)
 
     def testOnResult(self):
         trees = []
@@ -173,8 +173,8 @@ class SubTreesTreeBuilderTest(SeecrTestCase):
         parser.feed("<r>")
         parser.feed(xml)
         parser.feed(xml)
-        self.assertEquals(2, len(trees))
-        self.assertEquals('<b>Dit is een tag in een tag</b>', tostring(trees[0]))
+        self.assertEqual(2, len(trees))
+        self.assertEqual(b'<b>Dit is een tag in een tag</b>', tostring(trees[0]))
 
 
 

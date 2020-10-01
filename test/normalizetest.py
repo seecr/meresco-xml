@@ -3,7 +3,7 @@
 # "Meresco-Xml" is a set of components and tools for handling xml data objects.
 #
 # Copyright (C) 2005-2010 Seek You Too (CQ2) http://www.cq2.nl
-# Copyright (C) 2015 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2015, 2020 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Meresco-Xml"
 #
@@ -39,21 +39,21 @@ class NormalizeTest(TestCase):
 		outValue = '2006-11-28T19:00'
 		rule = (r'(\d{2,4}-\d{2}-\d{2}) (\d{2}:\d{2})', '%sT%s')
 		normalizer = lambda x: rule[1] % (compile(rule[0]).match(x).groups())
-		self.assertEquals( outValue, normalizer(inValue))
+		self.assertEqual( outValue, normalizer(inValue))
 
 	def testNormalizeOneRule(self):
 		rules = [(r'(\d{2,4}-\d{2}-\d{2}) (\d{2}:\d{2})', '%sT%s')]
 		normalize = Normalize(rules)
 		result = normalize.process('2006-11-28 19:00')
-		self.assertEquals('2006-11-28T19:00', result)
+		self.assertEqual('2006-11-28T19:00', result)
 
 	def testTwoRules(self):
 		rules = [('aap (.*)', '%s'), ('noot (.*)', '%s')]
 		normalize = Normalize(rules)
 		r1 = normalize.process('aap noot mies')
-		self.assertEquals('noot mies', r1)
+		self.assertEqual('noot mies', r1)
 		r2 = normalize.process('noot aap boom')
-		self.assertEquals('aap boom', r2)
+		self.assertEqual('aap boom', r2)
 
 	def testRuleWithCustomProcessing(self):
 		class Lower:
@@ -64,22 +64,22 @@ class NormalizeTest(TestCase):
 		rules = [('b(OO)m', Lower('%s'))]
 		normalize = Normalize(rules)
 		r1 = normalize.process('bOOm')
-		self.assertEquals('oo', r1)
+		self.assertEqual('oo', r1)
 
 	def testRuleWithPostProcessing(self):
 		rules = [('b(OO)m v(uu)r v(.*)s', '%s %s %s', (str.lower, str.upper, str.strip))]
 		normalize = Normalize(rules)
 		r1 = normalize.process('bOOm vuur v   ii   s')
-		self.assertEquals('oo UU ii', r1)
+		self.assertEqual('oo UU ii', r1)
 
 	def testValueIfNoMatch(self):
 		normalize = Normalize([('(aap)', '%s')])
-		self.assertEquals('noot', normalize.process('noot'))
-		self.assertEquals(None, normalize.process('noot', noMatchResult=None))
+		self.assertEqual('noot', normalize.process('noot'))
+		self.assertEqual(None, normalize.process('noot', noMatchResult=None))
 
 	def testNoMatchResult(self):
 		normalize = Normalize([('(aap)', '%s')], noMatchResult=None)
-		self.assertEquals(None, normalize.process('noot'))
-		self.assertEquals('vuur', normalize.process('noot', noMatchResult='vuur'))
+		self.assertEqual(None, normalize.process('noot'))
+		self.assertEqual('vuur', normalize.process('noot', noMatchResult='vuur'))
 
 
