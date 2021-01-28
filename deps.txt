@@ -1,2 +1,2 @@
-python-lxml
-python-meresco-core (>= 4.0)
+python3-lxml
+python3-meresco-core (>= 4.1)
